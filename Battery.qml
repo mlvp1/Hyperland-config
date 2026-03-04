@@ -62,7 +62,7 @@ Item {
             anchors.fill: parent
             onClicked: {
                 popup.opened = !popup.opened;
-                batteryLevel = 5;
+                
             }
         }
 
