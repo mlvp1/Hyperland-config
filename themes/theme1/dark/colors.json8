@@ -1,0 +1,29 @@
+{
+    "checksum": "9621d2ce6abcea8e21b9b712f2608cd0",
+    "wallpaper": "/home/yassine/Pictures/Wallpapers/w2.jpg",
+    "alpha": "100",
+
+    "special": {
+        "background": "#13211f",
+        "foreground": "#c4c7c7",
+        "cursor": "#c4c7c7"
+    },
+    "colors": {
+        "color0": "#13211f",
+        "color1": "#ABD167",
+        "color2": "#D7E362",
+        "color3": "#5B7585",
+        "color4": "#BB76A2",
+        "color5": "#60A0A2",
+        "color6": "#64AFB5",
+        "color7": "#c4c7c7",
+        "color8": "#5e7471",
+        "color9": "#ABD167",
+        "color10": "#D7E362",
+        "color11": "#5B7585",
+        "color12": "#BB76A2",
+        "color13": "#60A0A2",
+        "color14": "#64AFB5",
+        "color15": "#c4c7c7"
+    }
+}

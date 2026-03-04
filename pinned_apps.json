@@ -1,0 +1,34 @@
+{
+  "pinnedApps": [
+    {
+      "appName": "Firefox",
+      "iconName": "firefox",
+      "command": "firefox"
+    },
+    {
+      "appName": "Terminal",
+      "iconName": "kitty",
+      "command": "kitty"
+    },
+    {
+      "appName": "Files",
+      "iconName": "org.gnome.Nautilus",
+      "command": "nautilus"
+    },
+    {
+      "appName": "Spotify",
+      "iconName": "spotify-client",
+      "command": "spotify --uri="
+    },
+    {
+      "appName": "Visual Studio Code",
+      "iconName": "visual-studio-code",
+      "command": "/usr/bin/code --new-window"
+    },
+    {
+      "appName": "Free Download Manager",
+      "iconName": "freedownloadmanager",
+      "command": "/usr/bin/fdm"
+    }
+  ]
+}

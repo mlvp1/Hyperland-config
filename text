@@ -1,0 +1,388 @@
+Quickshell Codebase Review - Problems & Fixes Plan
+Date: February 4, 2026  
+Location: /home/yassine/.config/quickshell/
+---
+Table of Contents
+1. Critical Security Issues (#critical-security-issues)
+2. Critical Bugs (#critical-bugs)
+3. Typos & Naming Issues (#typos--naming-issues)
+4. Performance Issues (#performance-issues)
+5. Code Quality Issues (#code-quality-issues)
+6. Design & UX Issues (#design--ux-issues)
+7. Maintenance Issues (#maintenance-issues)
+---
+Critical Security Issues
+1. Malicious Script Present
+File: insta.py (198 lines)
+Problem:
+- Instagram private profile exploit/POC script
+- Completely unrelated to quickshell functionality
+- May be flagged by security scanners
+- Potential legal liability
+Fix:
+Option A: Delete the file
+  rm /home/yassine/.config/quickshell/insta.py
+Option B: Move to a different location
+  mv /home/yassine/.config/quickshell/insta.py ~/scripts/
+Priority: CRITICAL
+---
+Critical Bugs
+2. Invalid Gradient Color
+File: Wallpaper.qml  
+Line: 452
+Problem:
+color: "#003D2860"  // 7 hex digits - invalid!
+Fix:
+color: "#03D2860"  // OR "#003D286" depending on intended color
+Priority: HIGH
+---
+3. ThemeSwitcher - Wrong Theme References
+File: ThemeSwitcher.qml  
+Lines: 506-509, 532-535
+Problem:
+- Theme 4 and Theme 5 both reference "theme1" instead of their own theme directories
+- Theme 6 references "theme2" instead of "theme6"
+Current Code (Lines 506-509):
+onClicked: {
+    toggleTrack4.isOn = !toggleTrack4.isOn;
+    if (toggleTrack4.isOn)
+        moveColorFileDark("theme1");  // WRONG!
+    else
+        moveColorFileLight("theme1");  // WRONG!
+}
+Fix:
+// Theme 4 (Lines 506-509)
+if (toggleTrack4.isOn)
+    moveColorFileDark("theme4");
+else
+    moveColorFileLight("theme4");
+// Theme 5 (Lines 532-535)
+if (toggleTrack5.isOn)
+    moveColorFileDark("theme5");
+else
+    moveColorFileLight("theme5");
+// Theme 6 (Lines 758-761)
+if (toggleTrack6.isOn)
+    moveColorFileDark("theme6");
+else
+    moveColorFileLight("theme6");
+Priority: HIGH
+---
+4. Battery.qml - Test Value Left In
+File: Battery.qml  
+Line: 65
+Problem:
+onClicked: {
+    popup.opened = !popup.opened;
+    batteryLevel = 5;  // Test value - battery always shows 5%!
+}
+Fix:
+onClicked: {
+    popup.opened = !popup.opened;
+    // Remove the batteryLevel = 5 line
+}
+Priority: HIGH
+---
+Typos & Naming Issues
+5. Filename Typo
+File: VoulumeControl.qml
+Problem:
+- "Voulume" is misspelled (should be "Volume")
+Fix:
+mv /home/yassine/.config/quickshell/VoulumeControl.qml \
+   /home/yassine/.config/quickshell/VolumeControl.qml
+# Update any references in other files (none found in current codebase)
+Priority: MEDIUM
+---
+6. Text Typo in ThemeSwitcher
+File: ThemeSwitcher.qml  
+Line: 306
+Problem:
+text: "Purpel"  // Misspelled
+Fix:
+text: "Purple"
+Priority: LOW
+---
+7. Duplicate Theme Names
+File: ThemeSwitcher.qml  
+Lines: 580, 810, 668
+Problem:
+- Three themes all display as "Green"
+- Confusing for users
+Current:
+// Line 580 (Theme 4)
+text: "Green"
+// Line 668 (Theme 5)  
+text: "Green"
+// Line 810 (Theme 6)
+text: "Green"
+Fix:
+// Line 580 (Theme 4)
+text: "Green"
+// Line 668 (Theme 5)
+text: "Forest Green"
+// Line 810 (Theme 6)
+text: "Mint Green"
+Priority: LOW
+---
+Performance Issues
+8. Excessive Color Reloading
+File: ColorLoader.qml  
+Line: 50
+Problem:
+Timer {
+    interval: 10  // 100 times per second!
+    running: true
+    repeat: true
+    onTriggered: {
+        root.loadColors();
+    }
+}
+- Reads and parses JSON file 100 times per second
+- Causes unnecessary CPU usage
+- May cause UI stuttering
+Fix:
+// Option 1: Use FileWatcher (recommended)
+import Quickshell.Io
+FileWatcher {
+    path: root.colorsJsonFilePath
+    onFileChanged: {
+        root.loadColors();
+    }
+}
+// Option 2: Increase interval significantly
+Timer {
+    interval: 5000  // 5 seconds
+    running: true
+    repeat: true
+    onTriggered: {
+        root.loadColors();
+    }
+}
+Priority: HIGH
+---
+9. Multiple Redundant Timers
+Files: Multiple
+Problem:
+- Multiple timers polling the same data
+- Battery.qml: 5-second timer (lines 612-621)
+- Battery.qml: 10-second timer for GPU (lines 624-632)
+- Battery.qml: 10-second timer for refresh rate (lines 635-642)
+Fix:
+Consolidate into a single timer with staggered updates:
+Timer {
+    interval: 5000
+    running: true
+    repeat: true
+    onTriggered: {
+        batteryProc.running = true;
+        chargingProc.running = true;
+        if (root.hasGpu && counter % 2 === 0) {
+            getGpuMode.running = true;
+        }
+        getRefreshRate.running = true;
+        counter++;
+    }
+}
+property int counter: 0
+Priority: MEDIUM
+---
+Code Quality Issues
+10. Hardcoded Home Directory Path
+Files: Background.qml, ThemeSwitcher.qml, Wallpaper.qml, WallpaperColors.qml
+Problem:
+// Multiple files
+property string wallpaperDir: "/home/yassine/Pictures/Wallpapers"
+Fix:
+property string wallpaperDir: Quickshell.env("HOME") + "/Pictures/Wallpapers"
+property string themesPath: Quickshell.env("HOME") + "/.config/quickshell/themes"
+Priority: MEDIUM
+---
+11. Missing Error Handling
+Files: Multiple (ThemeSwitcher.qml, WallpaperColors.qml, Dock.qml)
+Problem:
+- No validation that theme directories exist before copying
+- No error handling for failed file operations
+Fix Example (ThemeSwitcher.qml):
+function moveColorFileDark(themeName) {
+    var themesPath = Quickshell.env("HOME") + "/.config/quickshell/themes";
+    var sourcePath = themesPath + "/" + themeName + "/dark/colors.json";
+    
+    // Add validation
+    if (!themeName || themeName.length === 0) {
+        console.error("Invalid theme name:", themeName);
+        return;
+    }
+    
+    moveProcess.command = ["/bin/sh", "-c", 
+        "test -f '" + sourcePath + "' && cp '" + sourcePath + "' '" + destPath + "' || echo 'Error copying theme'"];
+    moveProcess.running = true;
+}
+Priority: MEDIUM
+---
+12. Inconsistent Code Style
+Files: Multiple
+Problem:
+- Mix of arrow functions and regular functions
+- Inconsistent indentation (2-4 spaces)
+- Inconsistent quote usage (single vs double)
+Example:
+// Dock.qml:458
+onExited: (code, status) => { ... }
+// Search.qml:488
+onExited: function(code, status) { ... }
+Fix:
+Standardize on one style (recommend arrow functions for callbacks):
+onExited: (code, status) => { ... }
+Priority: LOW
+---
+Design & UX Issues
+13. Harsh Battery Warning Color
+File: Battery.qml  
+Line: 123
+Problem:
+color: root.isCharging ? "white" : "red"  // Too harsh
+Fix:
+color: root.isCharging ? "white" : (root.batteryLevel < 20 ? "#ff6b6b" : bgSecondary)
+Priority: LOW
+---
+14. Empty Rectangle in Setting.qml
+File: Setting.qml  
+Line: 162-173
+Problem:
+Rectangle {
+    width: 200
+    height: 200
+    color: "white"  // Hardcoded, doesn't use theme colors
+    visible: false  // Never used?
+}
+Fix:
+Either remove it or make it functional with proper theming:
+Rectangle {
+    width: 200
+    height: 200
+    color: bgPrimary
+    radius: 20
+    visible: false
+    // Add actual content or remove entirely
+}
+Priority: LOW
+---
+15. Unused/Dead Code
+Files: Multiple
+Problem:
+- old/ directory contains outdated files
+- sound.old.qml in Widgets directory
+- Commented-out code in shell.qml (lines 116-126)
+- Test.qml exists but purpose unclear
+Fix:
+# Remove or archive old files
+mkdir -p ~/.config/quickshell/archive
+mv ~/.config/quickshell/old/* ~/.config/quickshell/archive/
+rmdir ~/.config/quickshell/old
+mv ~/.config/quickshell/Widgets/sound.old.qml ~/.config/quickshell/archive/
+# Remove or clarify Test.qml
+Priority: LOW
+---
+Maintenance Issues
+16. Duplicate Theme Code
+File: ThemeSwitcher.qml  
+Lines: 94-854
+Problem:
+- Nearly identical code for 6 themes
+- Over 760 lines that could be reduced to ~100 with Repeater
+Current Structure:
+// Theme 1 Rectangle (40 lines)
+Rectangle { ... }
+// Theme 2 Rectangle (40 lines)
+Rectangle { ... }
+// Theme 3 Rectangle (40 lines)
+Rectangle { ... }
+// ... repeated 3 more times
+Fix:
+GridLayout {
+    columns: 2
+    
+    Repeater {
+        model: [
+            { name: "Green",   theme: "theme1", colors: ["#0E1A14", "#1F3A2E", "#B7E4C7"] },
+            { name: "Purple",  theme: "theme2", colors: ["#1D1433", "#3D2860", "#D2C7E5"] },
+            { name: "Blue",    theme: "theme3", colors: ["#131934", "#1A2045", "#5D6E96"] },
+            { name: "Green",   theme: "theme4", colors: ["#0E1A14", "#1F3A2E", "#95D5B2"] },
+            { name: "Forest Green", theme: "theme5", colors: ["#0E1A14", "#1F3A2E", "#95D5B2"] },
+            { name: "Mint Green",   theme: "theme6", colors: ["#0E1A14", "#1F3A2E", "#95D5B2"] }
+        ]
+        
+        delegate: ThemeSwitcherDelegate {
+            themeName: modelData.name
+            themeId: modelData.theme
+            themeColors: modelData.colors
+        }
+    }
+}
+Priority: MEDIUM
+---
+17. Missing Documentation
+Problem:
+- No README explaining how to configure
+- No comments explaining complex logic
+- No documentation for ColorLoader color properties
+Fix:
+Create /home/yassine/.config/quickshell/README.md:
+ Quickshell Configuration
+ Structure
+- `shell.qml` - Main entry point
+- `Bar.qml` - Workspace bar
+- `Dock.qml` - Application dock
+- `Notch.qml` - Notch container
+- `themes/` - Theme configurations
+ Configuration
+- Edit `pinned_apps.json` to change pinned apps
+- Colors are loaded from `themes/colors.json`
+ Dependencies
+- swww (wallpaper)
+- hyprctl (Hyprland)
+- supergfxctl (GPU switching)
+Priority: LOW
+---
+Summary by Priority
+| Priority | Count | Issues |
+|----------|-------|--------|
+| CRITICAL | 1 | Malicious script |
+| HIGH | 4 | Invalid color, wrong theme refs, test value, excessive reloading |
+| MEDIUM | 6 | Filename typo, hardcoded paths, error handling, timers, duplication, documentation |
+| LOW | 5 | Text typos, naming, visual polish, dead code |
+Total Issues: 16
+---
+Recommended Fix Order
+1. Immediate (Before Next Session):
+   - Remove insta.py
+   - Fix invalid gradient color in Wallpaper.qml
+   - Remove test value from Battery.qml
+2. High Priority (This Week):
+   - Fix theme references in ThemeSwitcher.qml
+   - Fix ColorLoader performance issue
+   - Rename VoulumeControl.qml
+3. Medium Priority (Next Week):
+   - Replace hardcoded paths with Quickshell.env("HOME")
+   - Consolidate timers
+   - Refactor ThemeSwitcher with Repeater
+   - Add error handling
+4. Low Priority (When Time Allows):
+   - Fix text typos
+   - Improve battery warning color
+   - Clean up dead code
+   - Add documentation
+---
+Additional Observations
+Strengths
+- Good use of Quickshell features (Hyprland integration, MPRIS, etc.)
+- Clean animation code with proper easing
+- Modular structure (separate directories for Widgets, services, themes)
+- Good color theming system
+Opportunities
+- Could add configuration file for user preferences
+- Could implement proper logging instead of console.log
+- Could add startup checks for dependencies
+---
+End of Report

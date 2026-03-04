@@ -1,0 +1,22 @@
+  property color bgColor: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.8), 0.8, baseColor.a)
+    property color baseColor: bgColor1
+    property color primaryDark: Qt.lighter(bgColor0, 3)
+    property color primary: Qt.hsla(baseColor.hslHue, baseColor.hslSaturation, Math.min(1, baseColor.hslLightness * 0.85), baseColor.a)
+    property color gradient3: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.8), 0.3, baseColor.a)
+    property color gradient2: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.75), Math.min(1, baseColor.hslLightness * 0.9), baseColor.a)
+    property color gradient1: baseColor
+    property color secondaryDark: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 1.1), Math.min(1, baseColor.hslLightness * 3), baseColor.a)
+    property color secondary: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.95), Math.min(1, baseColor.hslLightness * 3), baseColor.a)
+    property color secondaryHover: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.9), 0.9, baseColor.a)
+
+    light:
+      property color bgColor: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.8), 0.8, baseColor.a)
+    property color baseColor: bgColor1
+    property color primaryDark: Qt.lighter(bgColor0, 3)
+    property color secondary: Qt.hsla(baseColor.hslHue, baseColor.hslSaturation, Math.min(1, baseColor.hslLightness * 1.5), baseColor.a)
+    property color gradient3: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.8), 0.3, baseColor.a)
+    property color gradient2: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.75), Math.min(1, baseColor.hslLightness * 0.9), baseColor.a)
+    property color gradient1: baseColor
+    property color secondaryDark: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 1.1), Math.min(1, baseColor.hslLightness * 2), baseColor.a)
+    property color primary: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 1), Math.min(1, baseColor.hslLightness * 2.6), baseColor.a)
+    property color secondaryHover: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.9), 0.9, baseColor.a)

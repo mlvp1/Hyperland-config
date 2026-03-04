@@ -1,0 +1,152 @@
+import QtQuick
+import QtQuick.Layouts
+import Quickshell
+import"services"
+import"Widgets"
+
+
+
+PanelWindow {
+    implicitHeight: 44
+    color: "transparent"
+    ColorLoader {
+        id: colors
+    }
+    property string bgColor: colors.bgColor
+    property string bgPrimary: colors.bgPrimary
+    property string bgSecondary: colors.bgSecondary
+    anchors {
+        top: true
+        left: true
+        right: true
+    }
+    Dock{}
+    
+    Item {
+        anchors.fill: parent
+
+        // Left section with right-rounded corners
+        Item {
+            width: 150
+            height: 44
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+
+            Canvas {
+                // Subtle border
+                // ctx.strokeStyle = "#2a2a2a"
+                // ctx.lineWidth = 1
+                // ctx.stroke()
+
+                id: leftCanvas
+
+                anchors.fill: parent
+                onPaint: {
+                    var ctx = getContext("2d");
+                    ctx.reset();
+                    var radius = 20;
+                    var w = width;
+                    var h = height;
+                    // Create path with rounded right corners only
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(w - radius, 0);
+                    ctx.arcTo(w, 0, w, radius, 0);
+                    ctx.lineTo(w, h - radius);
+                    ctx.arcTo(w, h, w - radius, h, radius);
+                    ctx.lineTo(0, h);
+                    ctx.lineTo(0, 0);
+                    ctx.closePath();
+                    // Fill with gradient
+                    var gradient = ctx.createLinearGradient(0, 0, 0, h);
+                    gradient.addColorStop(0, "#02020D");
+                    gradient.addColorStop(1, "#02020D");
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                }
+            }
+
+            Row {
+                spacing: 8
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.leftMargin: 10
+
+                Test {
+                }
+                ColorPicker{
+                    
+                }
+                ScreenShot{}
+
+
+            }
+
+        }
+
+        // Center section - notch
+        Notch {
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+
+        // Right section with left-rounded corners
+        Item {
+            width: 140
+            height: 44
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+
+            Canvas {
+                // Subtle border
+                // ctx.strokeStyle = "#2a2a2a"
+                // ctx.lineWidth = 1
+                // ctx.stroke()
+
+                id: rightCanvas
+
+                anchors.fill: parent
+                onPaint: {
+                    var ctx = getContext("2d");
+                    ctx.reset();
+                    var radius = 20;
+                    var w = width;
+                    var h = height;
+                    // Create path with rounded left corners only
+                    ctx.beginPath();
+                    ctx.moveTo(w, 0);
+                    ctx.lineTo(radius, 0);
+                    ctx.arcTo(0, 0, 0, radius, 0);
+                    ctx.lineTo(0, h - radius);
+                    ctx.arcTo(0, h, radius, h, radius);
+                    ctx.lineTo(w, h);
+                    ctx.lineTo(w, 0);
+                    ctx.closePath();
+                    // Fill with gradient
+                    var gradient = ctx.createLinearGradient(0, 0, 0, h);
+                    gradient.addColorStop(0, "#02020D");
+                    gradient.addColorStop(1, "#02020D");
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                }
+            }
+
+            Row {
+                spacing: 8
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.rightMargin: 10
+
+                Win {
+                }
+
+                Battery {
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+            }
+
+        }
+
+    }
+
+}

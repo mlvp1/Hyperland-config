@@ -1,0 +1,14 @@
+{
+    "dark": {
+        "notch": "black",
+        "bg": "#1A1B26",
+        "Primary": "#161821",
+        "PrimaryDark": "#0F111A",
+        "Secondary": "#7AA2F7",
+        "SecondaryDark": "#5C7EFA",
+        "SecondaryHover": "#9BB7FF",
+        "Gradient1": "#7AA2F7",
+        "Gradient2": "#5C7EFA",
+        "Gradient3": "#3B50C0"
+    }
+}
