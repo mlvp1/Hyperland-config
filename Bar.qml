@@ -6,8 +6,7 @@ import "services"
 
 RowLayout {
     id: workspaceBar
-    
-anchors.margins: 5
+
     property string bgColor: colors.bgColor
     property string bgPrimary: colors.bgPrimary
     property string bgSecondary: colors.bgSecondary
@@ -15,6 +14,7 @@ anchors.margins: 5
     property string bgPrimaryDark: colors.bgPrimaryDark
     property string bgSecondaryDark: colors.bgSecondaryDark
 
+    anchors.margins: 5
     spacing: 0
 
     ColorLoader {
@@ -28,6 +28,7 @@ anchors.margins: 5
         color: "transparent"
         radius: 80
     }
+  
 
     Repeater {
         model: Hyprland.workspaces
@@ -46,13 +47,22 @@ anchors.margins: 5
             z: 10
             onClicked: {
                 Quickshell.execDetached(["hyprctl", "dispatch", "workspace", modelData.name]);
+               
+            }
+            onEntered: {
+                
+                // pan.visible=true
+                pan.tt=modelData.name
+
+            }
+            onExited:{
+                pan.visible=false
             }
 
             Rectangle {
                 id: workspaceDot
 
                 anchors.centerIn: parent
-                
                 width: modelData.focused || modelData.active ? 35 : 15
                 height: modelData.focused || modelData.active ? 18 : 15
                 radius: width / 2
@@ -63,7 +73,7 @@ anchors.margins: 5
                     anchors.centerIn: parent
                     text: modelData.id
                     font.pixelSize: modelData.focused ? 15 : 10
-                    color: workspaceButton.containsMouse && modelData.focused  ? bgPrimary : (modelData.focused || modelData.active ? bgSecondary : "transparent")
+                    color: workspaceButton.containsMouse && modelData.focused ? bgPrimary : (modelData.focused || modelData.active ? bgSecondary : "transparent")
                     font.bold: true
 
                     Behavior on color {
@@ -133,5 +143,15 @@ anchors.margins: 5
         }
 
     }
-
+  PanelWindow{
+    id:pan
+    property string tt: "hi"
+        width:100
+        height:100
+        visible:false
+        Text{
+            id:te
+            text:pan.tt
+        }
+    }
 }

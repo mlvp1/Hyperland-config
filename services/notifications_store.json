@@ -3716,5 +3716,137 @@
     "summary": "Low Battery",
     "time": 1772628631482,
     "urgency": "critical"
+  },
+  {
+    "notificationId": 4872,
+    "actions": [],
+    "appIcon": "",
+    "appName": "notify-send",
+    "body": "Battery level is at 15%. Please plug in your charger.",
+    "image": "image://icon/battery-caution",
+    "summary": "Low Battery",
+    "time": 1772800677892,
+    "urgency": "critical"
+  },
+  {
+    "notificationId": 4873,
+    "actions": [],
+    "appIcon": "",
+    "appName": "notify-send",
+    "body": "Battery level is at 15%. Please plug in your charger.",
+    "image": "image://icon/battery-caution",
+    "summary": "Low Battery",
+    "time": 1772802477467,
+    "urgency": "critical"
+  },
+  {
+    "notificationId": 4875,
+    "actions": [],
+    "appIcon": "blueman",
+    "appName": "blueman",
+    "body": "Authorization request for:\n<b>\u0002</b> (09:16:5F:6B:DF:ED)\nService: <b>Handsfree Audio Gateway</b>",
+    "image": "",
+    "summary": "Bluetooth Authentication",
+    "time": 1772835526230,
+    "urgency": "normal"
+  },
+  {
+    "notificationId": 4879,
+    "actions": [],
+    "appIcon": "",
+    "appName": "notify-send",
+    "body": "Battery level is at 15%. Please plug in your charger.",
+    "image": "image://icon/battery-caution",
+    "summary": "Low Battery",
+    "time": 1772928936607,
+    "urgency": "critical"
+  },
+  {
+    "notificationId": 4880,
+    "actions": [],
+    "appIcon": "",
+    "appName": "notify-send",
+    "body": "Battery level is at 15%. Please plug in your charger.",
+    "image": "image://icon/battery-caution",
+    "summary": "Low Battery",
+    "time": 1772928938285,
+    "urgency": "critical"
+  },
+  {
+    "notificationId": 4881,
+    "actions": [],
+    "appIcon": "",
+    "appName": "Add/Remove Software",
+    "body": "Transaction successfully finished",
+    "image": "",
+    "summary": "Package Manager",
+    "time": 1772929078792,
+    "urgency": "normal"
+  },
+  {
+    "notificationId": 4882,
+    "actions": [],
+    "appIcon": "",
+    "appName": "Hyprshot",
+    "body": "Image saved in <i>/home/yassine/2026-03-08-012731_hyprshot.png</i> and copied to the clipboard.",
+    "image": "image://icon//home/yassine/2026-03-08-012731_hyprshot.png",
+    "summary": "Screenshot saved",
+    "time": 1772929659814,
+    "urgency": "normal"
+  },
+  {
+    "notificationId": 4883,
+    "actions": [],
+    "appIcon": "",
+    "appName": "Hyprshot",
+    "body": "Image saved in <i>/home/yassine/2026-03-08-012831_hyprshot.png</i> and copied to the clipboard.",
+    "image": "image://icon//home/yassine/2026-03-08-012831_hyprshot.png",
+    "summary": "Screenshot saved",
+    "time": 1772929721390,
+    "urgency": "normal"
+  },
+  {
+    "notificationId": 4895,
+    "actions": [],
+    "appIcon": "",
+    "appName": "notify-send",
+    "body": "Battery level is at 15%. Please plug in your charger.",
+    "image": "image://icon/battery-caution",
+    "summary": "Low Battery",
+    "time": 1772930123609,
+    "urgency": "critical"
+  },
+  {
+    "notificationId": 4897,
+    "actions": [],
+    "appIcon": "",
+    "appName": "notify-send",
+    "body": "Battery level is at 15%. Please plug in your charger.",
+    "image": "image://icon/battery-caution",
+    "summary": "Low Battery",
+    "time": 1773270184597,
+    "urgency": "critical"
+  },
+  {
+    "notificationId": 4898,
+    "actions": [],
+    "appIcon": "",
+    "appName": "Add/Remove Software",
+    "body": "Transaction successfully finished",
+    "image": "",
+    "summary": "Package Manager",
+    "time": 1773348820022,
+    "urgency": "normal"
+  },
+  {
+    "notificationId": 4900,
+    "actions": [],
+    "appIcon": "",
+    "appName": "notify-send",
+    "body": "Battery level is at 15%. Please plug in your charger.",
+    "image": "image://icon/battery-caution",
+    "summary": "Low Battery",
+    "time": 1773446596853,
+    "urgency": "critical"
   }
 ]

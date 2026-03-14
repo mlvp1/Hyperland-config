@@ -272,7 +272,16 @@ PopupWindow {
                         anchors.fill: parent
                         fillMode: Image.PreserveAspectCrop
                         smooth: true
+                        MouseArea{
+                            width: 80
+                            height: 80
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                console.log(MprisService.activePlayer)
+                               Quickshell.execDetached(["bash","-c","hyprctl dispatch workspace $(hyprctl clients -j | jq -r '.[] | select(.class==\"spotify\") | .workspace.id')"])
 
+                            }
+                        }
                         layer.enabled: true
                         layer.effect: OpacityMask {
                             maskSource: Rectangle {

@@ -64,7 +64,7 @@ Item {
             cursorShape: Qt.PointingHandCursor
             onClicked: {
                 popup.opened = !popup.opened;
-                wallpaper.isopenn = popup.opened 
+                wallpaper.isopenn = popup.opened;
             }
         }
 
@@ -120,6 +120,7 @@ Item {
                     columns: 2
                     rowSpacing: 10
                     columnSpacing: 10
+                    layer.enabled: true
 
                     Rectangle {
                         color: bgPrimaryDark
@@ -173,26 +174,27 @@ Item {
 
                     }
 
+                    layer.effect: FastBlur {
+                        radius: popup.opened ? 0 : 80
+
+                        Behavior on radius {
+                            NumberAnimation {
+                                // easing.type: Easing.OutBack
+                                // easing.overshoot: 0.8
+
+                                duration: 250
+                            }
+
+                        }
+
+                    }
+
                 }
 
                 Behavior on color {
                     ColorAnimation {
                         duration: 150
                         easing.type: Easing.InOutQuad
-                    }
-
-                }
-
-                layer.effect: FastBlur {
-                    radius: popup.opened ? 0 : 0
-
-                    Behavior on radius {
-                        NumberAnimation {
-                            duration: 400
-                            easing.type: Easing.OutBack
-                            easing.overshoot: 0.8
-                        }
-
                     }
 
                 }

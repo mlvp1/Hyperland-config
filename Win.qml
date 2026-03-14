@@ -135,8 +135,8 @@ Item {
                 anchors.centerIn: parent
                 anchors.margins: 8
                 columns: 2
+                layer.enabled: true
 
-                // System Info Section
                 Rectangle {
                     color: "transparent"
                     radius: 20
@@ -227,19 +227,20 @@ Item {
 
                 }
 
-            }
+                layer.effect: FastBlur {
+                    radius: popup.opened ? 0 : 40
 
-            layer.effect: FastBlur {
-                radius: popup.opened ? 0 : 60
+                    Behavior on radius {
+                        NumberAnimation {
+                            duration: 200
+                            // easing.type: Easing.OutBack
+                            // easing.overshoot: 0.8
+                        }
 
-                Behavior on radius {
-                    NumberAnimation {
-                        duration: 50
-                        easing.type: Easing.OutBack
-                        easing.overshoot: 0.8
                     }
 
                 }
+                // System Info Section
 
             }
 

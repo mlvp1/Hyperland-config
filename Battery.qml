@@ -120,7 +120,7 @@ Item {
                     text: root.isCharging ? "" : root.battery
                     font.pointSize: 10
                     font.bold: true
-                    color: root.isCharging ? "white" : "black"
+                    color: root.isCharging ? "white" : "white"
                     anchors.centerIn: parent
                     z: 10
                 }
