@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Hyprland
+import Quickshell.Io
 import Quickshell.Wayland
 import "Widgets"
 import "services"
@@ -19,7 +21,24 @@ Scope {
     ColorLoader {
         id: colors
     }
-  
+   
+    IpcHandler {
+        function toggleTopBarPopup() {
+            popup.opened = !popup.opened;
+            wallpaper.isopenn = popup.opened;
+        }
+
+        function openTopBarPopup() {
+            popup.opened = true;
+            wallpaper.isopenn = true;
+        }
+
+        function closeTopBarPopup() {
+            popup.opened = false;
+            wallpaper.isopenn = false;
+        }
+
+    }
 
     // Notification overlay window
     PanelWindow {
@@ -50,7 +69,7 @@ Scope {
     PanelWindow {
         WlrLayershell.layer: WlrLayer.Bottom
         WlrLayershell.namespace: "depth-wallpaper-below"
-        implicitHeight: 44
+        implicitHeight: 44 // it was 44
         color: "transparent"
 
         anchors {
@@ -59,7 +78,6 @@ Scope {
             right: true
         }
 
-  
         SystemClock {
             id: clock
 
@@ -69,11 +87,11 @@ Scope {
         Rectangle {
             anchors.fill: parent
             radius: 20
-            color: bgColor
+            color: "transparent"
             anchors.verticalCenter: parent.verticalCenter
             anchors.leftMargin: 4
             anchors.rightMargin: 4
-            anchors.topMargin: 4
+            anchors.topMargin: 4 // it was 4
             anchors.bottomMargin: 0
 
             Item {

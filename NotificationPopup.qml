@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Effects
 import Quickshell
 import Quickshell.Widgets
+import Qt5Compat.GraphicalEffects
 import "services"
 
 Column {
@@ -196,17 +197,36 @@ Column {
             radius: 14
             color: bgColor
             border.color: Qt.rgba(1, 1, 1, 0.07)
-            border.width: 1
+           
 
   
-            ColumnLayout {
-                id: innerCol
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.margins: 12
-                spacing: 6
+ColumnLayout {
+    id: innerCol
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.top: parent.top
+    anchors.margins: 12
+    spacing: 6
 
+    layer.enabled: true
+    layer.effect: FastBlur {
+        radius: innerCol.blurRadius
+    }
+
+    property real blurRadius: 40  // starts blurry
+
+    // Kick off the blur-clear when the card appears
+    Component.onCompleted: blurInAnim.start()
+
+    NumberAnimation {
+        id: blurInAnim
+        target: innerCol
+        property: "blurRadius"
+        from: 40
+        to: 0
+        duration: 450
+        easing.type: Easing.OutCubic
+    }
                 // Header row
                 RowLayout {
                     Layout.fillWidth: true

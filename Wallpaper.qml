@@ -203,7 +203,7 @@ Item {
 
             Behavior on x {
                 NumberAnimation {
-                    duration: 400
+                    duration: 450
                     easing.type: Easing.OutCubic
                 }
 
@@ -491,6 +491,8 @@ Item {
                                     hoverEnabled: true
                                     cursorShape: Qt.PointingHandCursor
                                     onClicked: {
+                                        Quickshell.execDetached(["notify-send","Wallpaper changed"])
+                                        console.log("hi")
                                         wallpaperWindow.currentIndex = index;
                                         wallpaperWindow.setWallpaper(wallpaperPath);
                                         if (!wallpaperWindow.useVideo)

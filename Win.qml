@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Io
 import "Widgets"
 import "services"
 
@@ -20,7 +21,16 @@ Item {
     ColorLoader {
         id: colors
     }
+  IpcHandler {
+    target: "win"
 
+    function togglePanel() {
+        popup.opened = !popup.opened
+        
+    }
+
+
+}
     Rectangle {
         id: topBar
 

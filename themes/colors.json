@@ -1,14 +1,14 @@
 {
     "dark": {
         "notch": "#000000",
-        "bg": "#C2D0D6",
-        "Primary": "#39697E",
-        "PrimaryDark": "#355664",
-        "SecondaryHover": "#DDE9EE",
+        "bg": "#C8C1D7",
+        "Primary": "#3E2B69",
+        "PrimaryDark": "#423366",
+        "SecondaryHover": "#E2DCEF",
         "SecondaryDark": "#FFFFFF",
         "Secondary": "#FFFFFF",
-        "Gradient1": "#AAC8D5",
-        "Gradient2": "#558498",
-        "Gradient3": "#477385"
+        "Gradient1": "#B6A7D7",
+        "Gradient2": "#54427E",
+        "Gradient3": "#584488"
     }
 }

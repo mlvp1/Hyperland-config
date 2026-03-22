@@ -37,7 +37,7 @@ Item {
             c = "#009E60";
         else if (batteryLevel < 20)
             c = "#ff5555";
-        else if (batteryLevel < 50)
+        else if (batteryLevel < 25)
             c = "#f1fa8c";
         else
             c = bgSecondary;
@@ -62,7 +62,6 @@ Item {
             anchors.fill: parent
             onClicked: {
                 popup.opened = !popup.opened;
-                
             }
         }
 
@@ -120,7 +119,7 @@ Item {
                     text: root.isCharging ? "" : root.battery
                     font.pointSize: 10
                     font.bold: true
-                    color: root.isCharging ? "white" : "white"
+                    color: root.isCharging ? "white" : "transparent"
                     anchors.centerIn: parent
                     z: 10
                 }
@@ -186,9 +185,19 @@ Item {
                     width: 50
                     height: 50
                     color: bgPrimary
-                    radius: 10
+                    radius: 50
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
+
+                    Text {
+                        text: root.isCharging ? "" : root.battery + "%"
+                        font.pointSize: 15
+                        font.bold: true
+                        color: root.isCharging ? "white" : bgSecondary
+                        anchors.centerIn: parent
+                        z: 10
+                    }
+
                 }
 
                 Rectangle {
@@ -369,29 +378,82 @@ Item {
             width: 400
             height: 100
             anchors.centerIn: parent
-            color: "red"
+            color: "transparent"
             opacity: 0
-            radius: 10
+            radius: 30
 
-            Text {
-                anchors.centerIn: parent
-                text: "Battery Critical: " + root.batteryLevel + "%"
-                color: "white"
-                font.pointSize: 16
-                font.bold: true
+            Rectangle {
+                id: persentage
+
+                anchors.left: parent.left
+                color: bgSecondary
+                anchors.leftMargin: 10
+                radius: 50
+                anchors.verticalCenter: parent.verticalCenter
+                width: 90
+                height: 70
+
+                Text {
+                    anchors.centerIn: parent
+                    text: root.batteryLevel + "%"
+                    color: bgPrimary
+                    font.pointSize: 25
+                    font.bold: true
+                }
+
+            }
+
+            Column {
+                anchors.leftMargin: 100
+                anchors.left: persentage.left
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 0
+
+                Text {
+                    text: "Low Battrey"
+                    color: bgSecondary
+                    font.pointSize: 18
+                    font.bold: true
+                }
+
+                Text {
+                    text: "Plug in soon to charge" //"Battery Critical: " + root.batteryLevel + "%"
+                    color: bgSecondary
+                    font.pointSize: 14
+                    font.bold: false
+                }
+
             }
 
             Rectangle {
-                width: 20
-                height: 20
+                width: 65
+                height: 30
                 radius: 20
-                color: "black"
+                color: close.containsMouse ? bgSecondaryHover : bgPrimary
                 anchors.right: parent.right
                 anchors.rightMargin: 10
-                anchors.top: parent.top
-                anchors.topMargin: 10
+                anchors.verticalCenter: parent.verticalCenter
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "Ok"
+                    color: close.containsMouse ? bgPrimary : bgSecondaryHover
+                    font.pointSize: 15
+                    font.bold: true
+
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: 150
+                        }
+
+                    }
+
+                }
 
                 MouseArea {
+                    id: close
+
+                    hoverEnabled: enabled
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
@@ -401,6 +463,13 @@ Item {
                         // After animations complete, hide the panel window
                         hideWarningTimer.start();
                     }
+                }
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: 150
+                    }
+
                 }
 
             }
@@ -543,6 +612,8 @@ Item {
 
     // Battery capacity monitoring
     Process {
+        // Optional: hide warning if battery goes above 5%
+
         id: batteryProc
 
         command: ["sh", "-c", "cat /sys/class/power_supply/BAT*/capacity"]
@@ -561,9 +632,14 @@ Item {
                     root.lowBatteryNotified = false;
                 }
                 // Show critical battery warning at 5%
-                if (capacity === 5)
+                // Critical battery warning at 5% (only once)
+                if (capacity === 5 && !root.criticalBatteryShown) {
                     warrning.visible = true;
-
+                    root.criticalBatteryShown = true;
+                } else if (capacity > 5) {
+                    root.criticalBatteryShown = false;
+                    warrning.visible = false;
+                }
             }
         }
 

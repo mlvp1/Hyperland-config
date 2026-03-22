@@ -15,7 +15,7 @@ PopupWindow {
     property string bgPrimaryDark: colors.bgPrimaryDark
     property string bgSecondaryDark: colors.bgSecondaryDark
     property bool opened: false
-    property int expandedWidth: 640
+    property int expandedWidth: 600
     property int expandedHeight: 200
     property Item notchItem
     property bool contentVisible: false
@@ -123,7 +123,7 @@ PopupWindow {
             var ctx = getContext("2d");
             ctx.clearRect(0, 0, width, height);
 
-            var bottomRadius = 30;
+            var bottomRadius = 50;
             var gradient = ctx.createLinearGradient(0, 0, 0, height);
             gradient.addColorStop(0, "#02020D");
             gradient.addColorStop(1, "#02020D");
@@ -162,7 +162,9 @@ PopupWindow {
             anchors.fill: parent
             opacity: opened ? 1 : 0
             scale: opened ? 1 : 0.8
-
+            anchors.centerIn:parent
+                    anchors.top: parent.top
+                
             layer.enabled: true
             layer.effect: FastBlur {
                 radius: opened ? 0 : 50
@@ -258,21 +260,24 @@ PopupWindow {
 
                 // Album art
                 Rectangle {
+                    
+                    layer.enabled: true
                     id: albumArtContainer
                     width: 80
                     height: 80
                     anchors.top: parent.top
                     anchors.leftMargin: 20
                     radius: 14
-                    color: "#1a1a1a"
-
-                    Image {
-                        id: img
-                        source: MprisService.activeTrack.artUrl
-                        anchors.fill: parent
-                        fillMode: Image.PreserveAspectCrop
-                        smooth: true
-                        MouseArea{
+                    color: "#333333"
+                    scale:MprisService.isPlaying ? 1:0.999
+                    opacity:MprisService.isPlaying ? 1:0.8
+                          Behavior on scale {
+                                NumberAnimation { duration: 450; easing.type: Easing.OutCubic }
+                            }
+                            Behavior on opacity {
+                                NumberAnimation { duration: 450; easing.type: Easing.OutCubic }
+                            }
+                                     MouseArea{
                             width: 80
                             height: 80
                             cursorShape: Qt.PointingHandCursor
@@ -282,43 +287,222 @@ PopupWindow {
 
                             }
                         }
-                        layer.enabled: true
-                        layer.effect: OpacityMask {
-                            maskSource: Rectangle {
-                                width: img.width
-                                height: img.height
-                                radius: 14
+               
+          
+
+Image {
+    id: albumArtImage
+    
+    anchors.fill: parent
+    source: MprisService.activePlayer?.metadata["mpris:artUrl"] 
+    fillMode: Image.PreserveAspectCrop
+    visible: false // Hidden because we use it as a source for effects
+    
+}
+
+
+Rectangle {
+    id: maskShape
+    anchors.fill: parent
+    radius: 14
+    visible: false
+}
+
+
+GaussianBlur {
+    id: blurredArt
+    anchors.fill: parent
+    source: albumArtImage
+    radius: MprisService.isPlaying ? 0:5
+                  Behavior on radius {
+                                NumberAnimation { duration: 400; easing.type: Easing.OutCubic }
                             }
-                        }
-                    }
+    samples: 24
+    visible: false 
+}
+            
+
+
+OpacityMask {
+    anchors.fill: parent
+    source: blurredArt // Use the blurred version as source
+    maskSource: maskShape
+    
+    // Applying your existing logic/animations to the final output
+    opacity: MprisService.isPlaying ? 1 : 0.5
+    scale: MprisService.isPlaying ? 1 : 0.9
+    
+    Behavior on scale { NumberAnimation { duration: 150 } }
+    Behavior on opacity { NumberAnimation { duration: 150 } }
+}
+SequentialAnimation {
+    id: blurAnim
+
+    // Phase 1: blur in + fade out simultaneously
+    ParallelAnimation {
+        NumberAnimation {
+            target: blurredArt
+            property: "radius"
+            to: 30
+            duration: 280
+            easing.type: Easing.OutQuad
+        }
+        NumberAnimation {
+            target:albumArtContainer
+            property: "opacity"
+            to: 0
+            duration:100
+            easing.type: Easing.OutQuad
+        }
+        NumberAnimation {
+            target:albumArtContainer
+            property: "anchors.leftMargin"
+            to: 40
+            duration: 180
+            easing.type: Easing.OutQuad
+        }
+    }
+    PauseAnimation { duration: 200 }
+    // Phase 2: blur out + fade in simultaneously
+    ParallelAnimation {
+        NumberAnimation {
+            target: blurredArt
+            property: "radius"
+            to: 0
+            duration: 280
+            easing.type: Easing.InQuad
+        }
+        NumberAnimation {
+            target:albumArtContainer
+            property: "opacity"
+            to: 1
+            duration: 400
+            easing.type: Easing.InQuad
+        }
+        NumberAnimation {
+            target:albumArtContainer
+            property: "anchors.leftMargin"
+            to: 20
+            duration: 400
+            easing.type: Easing.OutQuad
+        }
+    }
+}
+
+
                 }
 
                 // Song info
-                Column {
-                    spacing: 4
-                    anchors.left: albumArtContainer.right
-                    anchors.leftMargin: 15
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    anchors.verticalCenter: albumArtContainer.verticalCenter
+  // Song info
+// Song info - replace the entire Column + SequentialAnimation block with this:
 
-                    Text {
-                        text: MprisService.activeTrack.title
-                        font.pixelSize: 24
-                        font.weight: Font.Bold
-                        color: "white"
-                        width: parent.width
-                        elide: Text.ElideRight
-                    }
+Item {
+    id: songInfoItem
+    anchors.left: albumArtContainer.right
+    anchors.leftMargin: 15
+    anchors.right: parent.right
+    anchors.rightMargin: 10
+    anchors.verticalCenter: albumArtContainer.verticalCenter
+    height: songInfoColumn.height
 
-                    Text {
-                        text: MprisService.activeTrack.artist
-                        color: "#cccccc"
-                        font.pixelSize: 16
-                        width: parent.width
-                        elide: Text.ElideRight
-                    }
-                }
+    Column {
+        id: songInfoColumn
+        spacing: 4
+        width: parent.width
+
+        Text {
+            id: titleText
+            text: MprisService.activeTrack.title
+            font.pixelSize: 24
+            font.weight: Font.Bold
+            color: "white"
+            width: parent.width
+            elide: Text.ElideRight
+        }
+
+        Text {
+            id: artistText
+            text: MprisService.activeTrack.artist
+            color: "#cccccc"
+            font.pixelSize: 16
+            width: parent.width
+            elide: Text.ElideRight
+        }
+    }
+
+    // Capture the column as a texture
+    ShaderEffectSource {
+        id: songInfoSource
+        sourceItem: songInfoColumn
+        anchors.fill: songInfoColumn
+        visible: false
+        hideSource: titleBlur.radius >0
+    }
+
+    // Blur overlay on top
+    FastBlur {
+        id: titleBlur
+        anchors.fill: songInfoColumn
+        source: songInfoSource
+        radius: 0
+        
+        visible: radius > 0
+    }
+}
+
+SequentialAnimation {
+    id: manualBlurAnim
+
+    // Phase 1: blur in + fade out simultaneously
+    ParallelAnimation {
+        NumberAnimation {
+            target: titleBlur
+            property: "radius"
+            to: 30
+            duration: 280
+            easing.type: Easing.OutQuad
+        }
+        NumberAnimation {
+            target:songInfoItem
+            property: "opacity"
+            to: 0
+            duration:100
+            easing.type: Easing.OutQuad
+        }
+        NumberAnimation {
+            target:songInfoItem
+            property: "anchors.leftMargin"
+            to: 50
+            duration: 180
+            easing.type: Easing.OutQuad
+        }
+    }
+
+    // Phase 2: blur out + fade in simultaneously
+    ParallelAnimation {
+        NumberAnimation {
+            target: titleBlur
+            property: "radius"
+            to: 0
+            duration: 280
+            easing.type: Easing.InQuad
+        }
+        NumberAnimation {
+            target:songInfoItem
+            property: "opacity"
+            to: 1
+            duration: 400
+            easing.type: Easing.InQuad
+        }
+        NumberAnimation {
+            target:songInfoItem
+            property: "anchors.leftMargin"
+            to: 15
+            duration: 400
+            easing.type: Easing.OutQuad
+        }
+    }
+}
 
                 // Progress bar and controls
                 Column {
@@ -392,7 +576,19 @@ PopupWindow {
                             anchors.verticalCenter: parent.verticalCenter
                         }
                     }
+Timer {
+    id: prevDelayTimer
+    interval: 180  // wait for fade-out to finish
+    repeat: false
+    onTriggered: MprisService.previous()
+}
 
+Timer {
+    id: nextDelayTimer
+    interval: 180
+    repeat: false
+    onTriggered: MprisService.next()
+}
                     // Playback controls
                     Row {
                         spacing: 70
@@ -414,13 +610,18 @@ PopupWindow {
                                 text: ""
                                 color: "white"
                                 font.pixelSize: 35
+                                
                             }
 
                             MouseArea {
                                 id: prevMouse
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: MprisService.previous()
+                          onClicked: {
+    manualBlurAnim.restart()
+    blurAnim.restart()
+    prevDelayTimer.restart()
+}
                             }
                         }
 
@@ -472,7 +673,11 @@ PopupWindow {
                                 id: nextMouse
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: MprisService.next()
+                                onClicked: {
+    manualBlurAnim.restart()
+    blurAnim.restart()
+    nextDelayTimer.restart()
+}
                             }
                         }
                     }

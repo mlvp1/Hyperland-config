@@ -36,7 +36,7 @@ PopupWindow {
     Process {
         id: lockProc
         running: false
-        command: ["hyprlock"]
+       command: ["/bin/sh", "/home/yassine/.config/quickshell/lock.sh"]
     }
 
     // Restart process

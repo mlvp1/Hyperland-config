@@ -62,7 +62,6 @@ Item {
         writeProcess.running = true;
     }
 
-
     function reloadColorsFromDisk() {
         colorReader.path = "";
         reloadTimer.start();
@@ -348,7 +347,7 @@ Item {
     Process {
         id: matugenProcess
 
-        command: ["matugen", "image", root.currentWallpaper]
+        command: ["matugen", "image", root.currentWallpaper, "--source-color-index", "0"]
         running: false
         onExited: (exitCode, exitStatus) => {
             console.log("matugen exited:", exitCode === 0 ? "success" : "failed");

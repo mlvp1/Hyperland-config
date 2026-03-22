@@ -66,14 +66,14 @@ RowLayout {
                 width: modelData.focused || modelData.active ? 35 : 15
                 height: modelData.focused || modelData.active ? 18 : 15
                 radius: width / 2
-                color: workspaceButton.containsMouse ? bgSecondaryHover : (modelData.focused || modelData.active ? bgPrimary : bgPrimaryDark)
+                color: workspaceButton.containsMouse ? bgSecondaryHover : (modelData.focused || modelData.active ? bgSecondaryHover: bgPrimaryDark)
                 scale: workspaceButton.containsMouse ? 1.1 : 1
 
                 Text {
                     anchors.centerIn: parent
                     text: modelData.id
                     font.pixelSize: modelData.focused ? 15 : 10
-                    color: workspaceButton.containsMouse && modelData.focused ? bgPrimary : (modelData.focused || modelData.active ? bgSecondary : "transparent")
+                    color: workspaceButton.containsMouse && modelData.focused ? bgPrimary : (modelData.focused || modelData.active ? bgPrimary : "transparent")
                     font.bold: true
 
                     Behavior on color {

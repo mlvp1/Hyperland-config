@@ -21,9 +21,7 @@ Item {
 
 
     // Gradient border container with bevel effect
-    Rectangle {
-        anchors.fill: parent
-        radius: 20
+ 
 
         // Inner content rectangle
         Rectangle {
@@ -175,11 +173,5 @@ Item {
             }
         }
 
-        gradient: Gradient {
-            orientation: Gradient.Vertical
-            GradientStop { position: 0; color: bgGradient1 }
-            GradientStop { position: 0.7; color: bgGradient2}
-            GradientStop { position: 1; color: bgGradient3}
-        }
-    }
+
 }

@@ -2,12 +2,17 @@ import Qt5Compat.GraphicalEffects
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Io
 import Quickshell.Hyprland
-import "services"
+import Quickshell.Io
 import Quickshell.Wayland
+import "services"
 
 ShellRoot {
+    //   id: grab
+    //   windows: [ popup ]
+    //   active: true
+    // }
+
     id: shellRoot
 
     property bool pinned: false
@@ -24,31 +29,6 @@ ShellRoot {
     property string bgGradient3: colors.bgGradient3
     // FileView to read pinned apps JSON
     property var pinnedAppsReader
-
-    pinnedAppsReader: FileView {
-        path: shellRoot.pinnedAppsFile
-        onLoaded: {
-            try {
-                var data = JSON.parse(text());
-                if (data.pinnedApps && Array.isArray(data.pinnedApps)) {
-                    shellRoot.pinnedApps = data.pinnedApps;
-                    console.log("Loaded", shellRoot.pinnedApps.length, "pinned apps from file");
-                } else {
-                    console.log("No pinnedApps array found, using defaults");
-                    useDefaultApps();
-                }
-            } catch (e) {
-                console.error("Failed to parse pinned_apps.json:", e);
-                useDefaultApps();
-            }
-        }
-    }
-    // HyprlandFocusGrab {
-    //   id: grab
-    //   windows: [ popup ]
-    //   active: true
-    // }
-
     property string jsonToSave: ""
     property string tempFilePath: ""
 
@@ -133,6 +113,7 @@ ShellRoot {
         console.log("Loading pinned apps from:", pinnedAppsFile);
         loadPinnedApps();
     }
+
     Component {
         id: mkdirComponent
 
@@ -196,7 +177,7 @@ ShellRoot {
         property bool exclusiveZoneEnabled: false
 
         width: dockContainer.width + 40
-        height:  70
+        height: 70
         color: "transparent"
         exclusiveZone: exclusiveZoneEnabled ? 60 : 0
 
@@ -221,9 +202,7 @@ ShellRoot {
 
             Rectangle {
                 id: dockContainer
-                        
-    
-        
+
                 width: dockLayout.width + 16
                 height: 56
                 radius: 30
@@ -255,8 +234,6 @@ ShellRoot {
                     // Dynamically create pinned app icons
                     Repeater {
                         model: shellRoot.pinnedApps
-
-            
 
                         AppIcon {
                             appName: modelData.appName
@@ -390,6 +367,26 @@ ShellRoot {
         }
 
     }
+
+    pinnedAppsReader: FileView {
+        path: shellRoot.pinnedAppsFile
+        onLoaded: {
+            try {
+                var data = JSON.parse(text());
+                if (data.pinnedApps && Array.isArray(data.pinnedApps)) {
+                    shellRoot.pinnedApps = data.pinnedApps;
+                    console.log("Loaded", shellRoot.pinnedApps.length, "pinned apps from file");
+                } else {
+                    console.log("No pinnedApps array found, using defaults");
+                    useDefaultApps();
+                }
+            } catch (e) {
+                console.error("Failed to parse pinned_apps.json:", e);
+                useDefaultApps();
+            }
+        }
+    }
+    // HyprlandFocusGrab {
 
     // Search and App Launcher Component
     component SearchLauncher: Item {
@@ -615,7 +612,7 @@ ShellRoot {
                                 font.pixelSize: 14
                                 clip: true
                                 selectByMouse: true
-                                activeFocusOnPress: true
+                                focus: GlobalStates.overviewOpen
 
                                 Text {
                                     visible: searchInput.text.length === 0
@@ -629,6 +626,7 @@ ShellRoot {
 
                             MouseArea {
                                 anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
                                 onClicked: {
                                     searchInput.forceActiveFocus();
                                 }
@@ -638,6 +636,7 @@ ShellRoot {
 
                         ListView {
                             id: searchListView
+
                             width: parent.width
                             height: parent.parent.height - 80
                             clip: true
@@ -646,6 +645,7 @@ ShellRoot {
 
                             delegate: Rectangle {
                                 id: delegateRect
+
                                 width: ListView.view.width
                                 height: 50
                                 color: delegateMouseArea.containsMouse ? bgSecondaryHover : "transparent"

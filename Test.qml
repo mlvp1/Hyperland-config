@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Io
 import "Widgets"
 import "services"
 
@@ -22,6 +23,17 @@ Item {
 
     width: 120
     height: 30
+
+  IpcHandler {
+    target: "main"
+
+    function togglePanel() {
+        popup.opened = !popup.opened
+        wallpaper.isopenn = popup.opened
+    }
+
+
+}
 
     ColorLoader {
         id: colors
@@ -102,14 +114,14 @@ Item {
             anchors.margins: 10
             radius: 30
             transformOrigin: Item.TopLeft
-            opacity: popup.opened ? 1 : 0
+            opacity: popup.opened ? 1 : 1
             scale: popup.opened ? 1 : 1
 
             Rectangle {
                 id: popupContent
 
                 anchors.fill: parent
-                anchors.margins: 0
+                anchors.margins: -1
                 color: bgColor
                 radius: 28
                 layer.enabled: true
@@ -123,7 +135,7 @@ Item {
                     layer.enabled: true
 
                     Rectangle {
-                        color: bgPrimaryDark
+                        color: "transparent"
                         height: 320
                         width: 320
                         radius: 20
@@ -136,7 +148,7 @@ Item {
                     }
 
                     Rectangle {
-                        color: bgPrimaryDark
+                        color: "transparent"
                         height: 330
                         width: 160
                         radius: 20
@@ -155,13 +167,13 @@ Item {
                         Layout.columnSpan: 2
                         Layout.rowSpan: 3
 
-                        ThemeSwitcher {
+                        SS {
                         }
 
                     }
 
                     Rectangle {
-                        color: "red"
+                        color: "transparent"
                         radius: 20
                         height: 380
                         Layout.fillWidth: true
@@ -175,14 +187,14 @@ Item {
                     }
 
                     layer.effect: FastBlur {
-                        radius: popup.opened ? 0 : 80
+                        radius: popup.opened ? 0 : 45
 
                         Behavior on radius {
                             NumberAnimation {
                                 // easing.type: Easing.OutBack
                                 // easing.overshoot: 0.8
 
-                                duration: 250
+                                duration: 180
                             }
 
                         }
@@ -245,9 +257,9 @@ Item {
 
                 Behavior on x {
                     NumberAnimation {
-                        duration: 550
+                        duration: 450
                         easing.type: Easing.OutBack
-                        easing.overshoot: 0.6
+                        easing.overshoot: 0.8
                     }
 
                 }
