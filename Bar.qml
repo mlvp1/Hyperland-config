@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Io
 import "services"
 
 RowLayout {
@@ -13,9 +14,34 @@ RowLayout {
     property string bgSecondaryHover: colors.bgSecondaryHover
     property string bgPrimaryDark: colors.bgPrimaryDark
     property string bgSecondaryDark: colors.bgSecondaryDark
+    property string activeAppName: ""
+    property string appIcon:""
+
+    function workspaceIcon() {
+        appFetcher.running = true;
+        if (activeAppName == "spotify")
+            return appIcon="";
+        else return appIcon=""
+
+    }
 
     anchors.margins: 5
     spacing: 0
+
+    Process {
+        id: appFetcher
+
+        // This command finds the first app in the current active workspace
+        command: ["sh", "-c", "hyprctl clients -j | jq -r --arg ws $(hyprctl activeworkspace -j | jq '.id') '.[] | select(.workspace.id == ($ws|tonumber)) | .class' | head -n 1"]
+        running: false
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                activeAppName = text.trim() || " ";
+            }
+        }
+
+    }
 
     ColorLoader {
         id: colors
@@ -28,7 +54,6 @@ RowLayout {
         color: "transparent"
         radius: 80
     }
-  
 
     Repeater {
         model: Hyprland.workspaces
@@ -47,16 +72,7 @@ RowLayout {
             z: 10
             onClicked: {
                 Quickshell.execDetached(["hyprctl", "dispatch", "workspace", modelData.name]);
-               
-            }
-            onEntered: {
-                
-                // pan.visible=true
-                pan.tt=modelData.name
-
-            }
-            onExited:{
-                pan.visible=false
+                workspaceIcon() ;
             }
 
             Rectangle {
@@ -66,9 +82,9 @@ RowLayout {
                 width: modelData.focused || modelData.active ? 35 : 15
                 height: modelData.focused || modelData.active ? 18 : 15
                 radius: width / 2
-                color: workspaceButton.containsMouse ? bgSecondaryHover : (modelData.focused || modelData.active ? bgSecondaryHover: bgPrimaryDark)
+                color: workspaceButton.containsMouse ? bgSecondaryHover : (modelData.focused || modelData.active ? bgSecondaryHover : bgPrimaryDark)
                 scale: workspaceButton.containsMouse ? 1.1 : 1
-
+                
                 Text {
                     anchors.centerIn: parent
                     text: modelData.id
@@ -143,15 +159,5 @@ RowLayout {
         }
 
     }
-  PanelWindow{
-    id:pan
-    property string tt: "hi"
-        width:100
-        height:100
-        visible:false
-        Text{
-            id:te
-            text:pan.tt
-        }
-    }
+
 }

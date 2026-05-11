@@ -58,7 +58,7 @@ Item {
         lastVolume = volume;
     }
 
-    width: 385
+    width: 380
     height: 60
 
     // Monitor volume changes from system
@@ -178,7 +178,7 @@ Item {
     // Background container with rounded corners
     Rectangle {
         id: container
-        width: 385
+        width: 383
         height: 60
         radius: height / 2
         color: bgPrimaryDark
@@ -196,7 +196,7 @@ Item {
     }
 
     Rectangle {
-        width: 385
+        width: 380
         height: 60
         radius: height / 2
         color: "transparent"
@@ -215,10 +215,10 @@ Item {
 
     Rectangle {
         id: progressFill
-        x: (parent.width - 385) / 2
+        x: (parent.width - 383) / 2
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        width: isMuted ? 60 : Math.max(60, 385 * root.volume)
+        width: isMuted ? 60 : Math.max(60, 383 * root.volume)
         radius: 30
         color: bgPrimary
 
@@ -236,7 +236,7 @@ Item {
         width: 48
         height: 48
         radius: 24
-        x: (parent.width - 385) / 2 + 6
+        x: (parent.width - 383) / 2 + 6
         anchors.verticalCenter: parent.verticalCenter
         color: bgSecondary
 

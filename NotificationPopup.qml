@@ -1,471 +1,323 @@
-import QtQuick
-import QtQuick.Layouts
-import QtQuick.Effects
-import Quickshell
-import Quickshell.Widgets
+import "NotchModules"
 import Qt5Compat.GraphicalEffects
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import Quickshell
+import Quickshell.Io
+import Quickshell.Services.Mpris
+// NotchContainer.qml
 import "services"
 
-Column {
-    id: root
+Item {
+    id: notchContainer
+
     property string bgColor: colors.bgColor
     property string bgPrimary: colors.bgPrimary
     property string bgSecondary: colors.bgSecondary
     property string bgSecondaryHover: colors.bgSecondaryHover
     property string bgPrimaryDark: colors.bgPrimaryDark
     property string bgSecondaryDark: colors.bgSecondaryDark
-    property string bgGradient1: colors.bgGradient1
-    property string bgGradient2: colors.bgGradient2
-    property string bgGradient3: colors.bgGradient3
+    property bool hasSongPlaying: MprisService.isPlaying && MprisService.activePlayer !== null && MprisService.activeTrack.title !== ""
+    property int extendedWidth: 150
+    property int normalWidth: bar.width + 50
+    property real animationDuration: 0
 
-    ColorLoader { id: colors }
+    width: volumeModule.visible ? normalWidth + 250 : (musicPlayer.opened ? musicPlayer.expandedWidth : (buttonPanel.opened ? buttonPanel.expandedWidth : (hasSongPlaying ? normalWidth + extendedWidth : normalWidth)))
+    height: 40
 
-    // Tracks which app groups are already visible so Repeater rebuilds
-    // don't replay the appear animation on existing delegates.
-    property var seenGroups: ({})
+    IpcHandler {
+        function toggleButtonPanel() {
+            animationDuration = 0;
+            buttonPanel.opened = !buttonPanel.opened;
+        }
 
-    anchors.fill: parent
-    anchors.topMargin:10 
+        function toggleMusicPanel() {
+            animationDuration = 0;
+            musicPlayer.opened = !musicPlayer.opened;
+            if (musicPlayer.opened) {
+                volumeModule.visible = false;
+                buttonPanel.opened = false;
+            }
+        }
 
-    width: 380
-    height: popupColumn.implicitHeight
+        target: "notch"
+    }
 
-    Column {
-        id: popupColumn
-        anchors.right: parent.right
-        anchors.top: parent.top
-        spacing: 8
-        width: parent.width
+    ColorLoader {
+        id: colors
+    }
 
-        Repeater {
-            model: Notifications.popupAppNameList
+    Connections {
+        function onIsPlayingChanged() {
+            if (!MprisService.isPlaying)
+                animationDuration = 0;
 
-            delegate: NotificationGroup {
-                required property string modelData
-                appName: modelData
-                notifications: Notifications.popupGroupsByAppName[modelData]?.notifications ?? []
-                width: popupColumn.width
+        }
+
+        function onActivePlayerChanged() {
+            if (!MprisService.isPlaying)
+                animationDuration = 0;
+
+        }
+
+        target: MprisService
+    }
+
+    // Now Playing Song Info
+    NowPlayingNotch {
+        id: nowPlaying
+
+        size: notchMouseArea.containsMouse && !musicPlayer.opened && !buttonPanel.opened ? 1.1 : 1
+        anchors.fill: parent
+        visible: hasSongPlaying && !volumeModule.visible && !buttonPanel.opened
+        z: 5
+        opacity: musicPlayer.opened ? 0 : 1
+        anchors.topMargin: musicPlayer.opened ? 20 : 0
+        layer.enabled: true
+
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 150
+                easing.type: Easing.InOutCubic
+            }
+
+        }
+
+        Behavior on anchors.topMargin {
+            NumberAnimation {
+                duration: 150
+                easing.type: Easing.InOutCubic
+            }
+
+        }
+
+        layer.effect: FastBlur {
+            radius: (musicPlayer.opened || volumeModule.visible || buttonPanel.opened) ? 50 : 0
+
+            Behavior on radius {
+                NumberAnimation {
+                    duration: 300
+                    easing.type: Easing.InOutQuad
+                }
+
+            }
+
+        }
+
+    }
+
+    // Volume Module
+    VolumeModule {
+        id: volumeModule
+
+        anchors.fill: parent
+        visible: false // DEFAULT TO HIDDEN - Bar shows first
+        z: 5
+        onVisibleChanged: {
+            if (visible) {
+                musicPlayer.opened = false;
+                buttonPanel.opened = false;
             }
         }
     }
 
-    // ── Notification group card ───────────────────────────────────────────────
-    component NotificationGroup: Item {
-        id: groupRoot
-        required property string appName
-        required property list<var> notifications
+    //Bar
+    Bar {
+        id: bar
 
-        property bool dismissed: false
-        property real dragOffset: 0
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: (musicPlayer.opened || volumeModule.visible || buttonPanel.opened) ? -50 : 5
+        z: 5
+        opacity: (musicPlayer.opened || volumeModule.visible || buttonPanel.opened) ? 0 : 1
+        layer.enabled: true
 
-        // The card starts translated right + invisible, then animates in.
-        // We drive position manually so drag + animations don't conflict.
-        // Start at correct state immediately — no flicker on first frame
-        property real animX: root.seenGroups[appName] ? 0 : 60
-        property real animOpacity: root.seenGroups[appName] ? 1 : 0
+        MouseArea {
+            id: barM
 
-        implicitHeight: innerCol.implicitHeight + 24
-        // Collapse height to 0 once leaving; Behavior smooths it
-        property bool isLeaving: false
-        height: isLeaving ? 0 : implicitHeight
-        clip: true
+            anchors.fill: parent
+            hoverEnabled: true
+        }
+
+        layer.effect: FastBlur {
+            radius: (musicPlayer.opened || volumeModule.visible || buttonPanel.opened) ? 50 : 0
+
+            Behavior on radius {
+                NumberAnimation {
+                    duration: 350
+                    easing.type: Easing.InOutQuad
+                }
+
+            }
+
+        }
+
+        Behavior on y {
+            NumberAnimation {
+                duration: 350
+                easing.type: Easing.InOutCubic
+            }
+
+        }
+
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 100
+                easing.type: Easing.InOutCubic
+            }
+
+        }
+
+    }
+
+    // Main notch background
+    Canvas {
+        id: notchCanvas
+
+        anchors.centerIn: parent
+        width: notchMouseArea.containsMouse  && !musicPlayer.opened && !buttonPanel.opened ? notchContainer.width + 4 : musicPlayer.opened ? musicPlayer.expandedWidth : (buttonPanel.opened ? buttonPanel.expandedWidth : notchContainer.width)
+        height: notchMouseArea.containsMouse  && !musicPlayer.opened && !buttonPanel.opened ? notchContainer.height + 4 : (musicPlayer.opened || buttonPanel.opened) ? notchContainer.height + 50 : notchContainer.height
+        z: (musicPlayer.opened || buttonPanel.opened) ? 4 : 0
+        layer.enabled: true
+        onWidthChanged: requestPaint()
+        onHeightChanged: requestPaint()
+        onPaint: {
+            var ctx = getContext("2d");
+            ctx.clearRect(0, 0, width, height);
+            var bottomRadius = (musicPlayer.opened || buttonPanel.opened) ? 15 : 20;
+            var topRadius = 12;
+            var topOffset = -2;
+            var gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, "#02020D");
+            gradient.addColorStop(1, "#02020D");
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.moveTo(topRadius, topOffset);
+            ctx.arcTo(0, topOffset, 0, topOffset + topRadius, topRadius);         // top-left corner
+            ctx.lineTo(0, height - bottomRadius);
+            ctx.arcTo(0, height, bottomRadius, height, bottomRadius);              // bottom-left corner
+            ctx.lineTo(width - bottomRadius, height);
+            ctx.arcTo(width, height, width, height - bottomRadius, bottomRadius);  // bottom-right corner
+            ctx.lineTo(width, topOffset + topRadius);
+            ctx.arcTo(width, topOffset, width - topRadius, topOffset, topRadius);  // top-right corner
+            ctx.closePath();
+            ctx.fill();
+        }
+        anchors.topMargin: -50
+
+        layer.effect: DropShadow {
+            horizontalOffset: 0
+            verticalOffset: 4
+            radius: 10
+            samples: 33
+            color: "#80000000"
+            transparentBorder: true
+        }
+
+        Behavior on width {
+            NumberAnimation {
+                duration: {
+                    animationDuration;
+                }
+                easing.type: Easing.InOutCubic
+            }
+
+        }
+
         Behavior on height {
-            NumberAnimation { duration: 220; easing.type: Easing.InOutCubic }
-        }
-
-        // Single transform so drag and slide share the same translate
-        transform: Translate { x: groupRoot.animX + groupRoot.dragOffset }
-        opacity: groupRoot.animOpacity
-
-        // ── Appear ────────────────────────────────────────────────────────────
-        // seenGroups persists on root across Repeater rebuilds.
-        // New group → animate in. Existing group being rebuilt → snap to visible.
-        Component.onCompleted: {
-            if (root.seenGroups[appName]) {
-                animX = 0
-                animOpacity = 1
-            } else {
-                root.seenGroups[appName] = true
-                appearAnim.start()
-            }
-        }
-
-        Component.onDestruction: {
-            if (dismissed) {
-                var copy = root.seenGroups
-                delete copy[appName]
-                root.seenGroups = copy
-            }
-        }
-
-        ParallelAnimation {
-            id: appearAnim
             NumberAnimation {
-                target: groupRoot; property: "animOpacity"
-                from: 0; to: 1
-                duration: 280; easing.type: Easing.OutCubic
+                duration: {
+                    if (musicPlayer.opened || buttonPanel.opened)
+                        500;
+                    else
+                        animationDuration;
+                }
+                easing.type: Easing.InOutCubic
             }
-            NumberAnimation {
-                target: groupRoot; property: "animX"
-                from: 60; to: 0
-                duration: 300; easing.type: Easing.OutExpo
-            }
+
         }
 
-        // ── Dismiss ───────────────────────────────────────────────────────────
-        property var pendingIds: []
-
-        function dismiss(ids) {
-            if (dismissed) return
-            dismissed = true
-            pendingIds = ids || []
-            dismissAnim.start()
-        }
-
-        SequentialAnimation {
-            id: dismissAnim
-            ParallelAnimation {
-                NumberAnimation {
-                    target: groupRoot; property: "animOpacity"
-                    to: 0; duration: 180; easing.type: Easing.InCubic
-                }
-                NumberAnimation {
-                    target: groupRoot; property: "animX"
-                    to: 60; duration: 200; easing.type: Easing.InExpo
-                }
-            }
-            ScriptAction {
-                script: {
-                    groupRoot.isLeaving = true
-                    groupRoot.pendingIds.forEach(function(id) {
-                        Notifications.discardNotification(id)
-                    })
-                }
-            }
-        }
-
-        // ── Fling ─────────────────────────────────────────────────────────────
-        function fling(direction, ids) {
-            if (dismissed) return
-            dismissed = true
-            pendingIds = ids || []
-            flingAnim.targetX = direction > 0 ? 500 : -500
-            flingAnim.start()
-        }
-
-        SequentialAnimation {
-            id: flingAnim
-            property real targetX: 500
-            ParallelAnimation {
-                NumberAnimation {
-                    target: groupRoot; property: "dragOffset"
-                    to: flingAnim.targetX; duration: 220; easing.type: Easing.OutExpo
-                }
-                NumberAnimation {
-                    target: groupRoot; property: "animOpacity"
-                    to: 0; duration: 180; easing.type: Easing.InCubic
-                }
-            }
-            ScriptAction {
-                script: {
-                    groupRoot.isLeaving = true
-                    groupRoot.pendingIds.forEach(function(id) {
-                        Notifications.discardNotification(id)
-                    })
-                }
-            }
-        }
-
-        // Auto-dismiss when service removes notifications
-        onNotificationsChanged: {
-            if (notifications.length === 0 && !dismissed) {
-                dismissed = true
-                dismissAnim.start()
-                // Nothing to discard — service already did it
-            }
-        }
-
-        // ── Card ──────────────────────────────────────────────────────────────
-        Rectangle {
-            id: card
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.leftMargin: 4
-            anchors.rightMargin: 4
-            implicitHeight: innerCol.implicitHeight + 24
-            height: implicitHeight
-            radius: 14
-            color: bgColor
-            border.color: Qt.rgba(1, 1, 1, 0.07)
-           
-
-  
-ColumnLayout {
-    id: innerCol
-    anchors.left: parent.left
-    anchors.right: parent.right
-    anchors.top: parent.top
-    anchors.margins: 12
-    spacing: 6
-
-    layer.enabled: true
-    layer.effect: FastBlur {
-        radius: innerCol.blurRadius
     }
 
-    property real blurRadius: 40  // starts blurry
+    // Main notch mouse area for music player
+    MouseArea {
+        id: notchMouseArea
 
-    // Kick off the blur-clear when the card appears
-    Component.onCompleted: blurInAnim.start()
-
-    NumberAnimation {
-        id: blurInAnim
-        target: innerCol
-        property: "blurRadius"
-        from: 40
-        to: 0
-        duration: 450
-        easing.type: Easing.OutCubic
-    }
-                // Header row
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 8
-
-                    Item {
-                        width: 20; height: 20
-                        Rectangle {
-                            anchors.fill: parent; radius: 6
-                            color: bgPrimaryDark
-                            visible: appIcon.status !== Image.Ready
-                        }
-                        Image {
-                            id: appIcon
-                            anchors.fill: parent
-                            source: {
-                                const icon = groupRoot.notifications[0]?.appIcon ?? ""
-                                if (!icon) return ""
-                                if (icon.startsWith("/") || icon.startsWith("file://") || icon.startsWith("http"))
-                                    return icon
-                                return "image://icon/" + icon
-                            }
-                            fillMode: Image.PreserveAspectFit
-                            smooth: true
-                        }
-                    }
-
-                    Text {
-                        text: groupRoot.appName || "Notification"
-                        font.pixelSize: 11; font.weight: Font.Medium
-                        font.family: "Rubik"
-                        color: bgPrimary
-                        elide: Text.ElideRight
-                        Layout.fillWidth: true
-                    }
-
-                    Text {
-                        text: formatTime(groupRoot.notifications[0]?.time ?? 0)
-                        font.pixelSize: 10; font.family: "Rubik"
-                        color: bgPrimary
-                    }
-
-                    // Close button
-                    Item {
-                        width: 20; height: 20
-                        Rectangle {
-                            anchors.fill: parent; radius: 10
-                            color: closeHover.containsMouse ? Qt.rgba(1,1,1,0.15) : "transparent"
-                            Behavior on color { ColorAnimation { duration: 120 } }
-                        }
-                        Text {
-                            anchors.centerIn: parent
-                            text: "✕"; font.pixelSize: 10
-                            color: bgPrimary
-                        }
-                        
-                        HoverHandler { id: closeHover  }
-                        TapHandler {
-                            onTapped: {
-                                
-                                const ids = groupRoot.notifications.map(function(n) {
-                                    return n.notificationId
-                                })
-                                groupRoot.dismiss(ids)
-                            }
-                        }
-                    }
-                }
-
-                Rectangle {
-                    Layout.fillWidth: true; height: 1
-                    color: Qt.rgba(1, 1, 1, 0.06)
-                }
-
-                Repeater {
-                    model: groupRoot.notifications
-                    delegate: NotificationRow {
-                        required property var modelData
-                        notif: modelData
-                        Layout.fillWidth: true
-                    }
-                }
-
-                Item { height: 4 }
-            }
-
-            // Drag
-            DragHandler {
-                id: dragger
-                xAxis.enabled: true
-                yAxis.enabled: false
-                enabled: !groupRoot.dismissed
-
-                property real pressX: 0
-
-                onGrabChanged: function(transition, point) {
-                    if (transition === PointerDevice.GrabExclusive) {
-                        pressX = point.scenePosition.x
-                    }
-                }
-
-                onCentroidChanged: {
-                    if (active && !groupRoot.dismissed) {
-                        groupRoot.dragOffset = centroid.scenePosition.x - pressX
-                    }
-                }
-
-                onActiveChanged: {
-                    if (!active) {
-                        const dx = groupRoot.dragOffset
-                        if (Math.abs(dx) > 100) {
-                            const ids = groupRoot.notifications.map(function(n) {
-                                return n.notificationId
-                            })
-                            groupRoot.fling(dx, ids)
-                        } else {
-                            snapBack.start()
-                        }
-                    }
-                }
+        width: musicPlayer.opened ? musicPlayer.expandedWidth : (buttonPanel.opened ? buttonPanel.expandedWidth : notchContainer.width)
+        height: (musicPlayer.opened || buttonPanel.opened) ? notchContainer.height + 50 : notchContainer.height
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+        onClicked: {
+            animationDuration = 0;
+            musicPlayer.opened = !musicPlayer.opened;
+            if (musicPlayer.opened) {
+                volumeModule.visible = false;
+                buttonPanel.opened = false;
             }
         }
+        onExited: {
+            musicPlayer.startCloseTimer();
+            animationDuration = 0;
+        }
+        onEntered: {
+            animationDuration = 0;
+            musicPlayer.stopCloseTimer();
+            buttonPanel.stopCloseTimer();
+        }
+        onWheel: (wheel) => {
+            animationDuration = 0;
+            volumeModule.handleWheel(wheel);
+        }
+    }
 
+    // Music Player Popup
+    MusicPlayerPopup {
+        id: musicPlayer
+
+        notchItem: notchContainer
+        onOpenedChanged: {
+            if (opened)
+                animationDuration = 450;
+
+        }
+
+        anchor {
+            item: notchItem
+            rect.x: (notchItem.width / 2 - width / 2) + 1
+            rect.y: notchItem.height - 5
+        }
+
+    }
+
+    // Button Panel Popup
+    ButtonPanelPopup {
+        id: buttonPanel
+
+        notchItem: notchContainer
+        onOpenedChanged: {
+            if (opened)
+                animationDuration = 450;
+
+        }
+    }
+
+    Behavior on width {
         NumberAnimation {
-            id: snapBack
-            target: groupRoot; property: "dragOffset"
-            to: 0; duration: 260
-            easing.type: Easing.OutBack; easing.overshoot: 0.5
-        }
-    }
+            duration: {
+                if (volumeModule.visible)
+                    return 300;
 
-    // ── Notification row ──────────────────────────────────────────────────────
-    component NotificationRow: ColumnLayout {
-        id: rowRoot
-        required property var notif
-        spacing: 3
+                if (musicPlayer.opened || buttonPanel.opened)
+                    return 450;
 
-        RowLayout {
-            spacing: 10
-            Layout.fillWidth: true
+                if (hasSongPlaying)
+                    return 300;
 
-            Item {
-                visible: notif.image !== ""
-                width: visible ? 42 : 0; height: 42
-                Rectangle {
-                    anchors.fill: parent; radius: 8
-                    color: bgSecondary; clip: true
-                    Image {
-                        id: notifImg
-                        anchors.fill: parent
-                        source: {
-                            const img = notif.image
-                            if (!img) return ""
-                            if (img.startsWith("/")) return "file://" + img
-                            if (img.startsWith("data:")) return img
-                            if (img.startsWith("file://") || img.startsWith("http"))
-                                return img
-                            return "image://icon/" + img
-                        }
-                        fillMode: Image.PreserveAspectCrop
-                        smooth: true
-                    }
-                }
+                return 300;
             }
-
-            ColumnLayout {
-                spacing: 2
-                Layout.fillWidth: true
-
-                Text {
-                    text: notif.summary || "No title"
-                    font.pixelSize: 13; font.weight: Font.SemiBold
-                    font.family: "Rubik"
-                    color: bgPrimary
-                    elide: Text.ElideRight
-                    Layout.fillWidth: true
-                }
-
-                Text {
-                    visible: notif.body !== ""
-                    text: notif.body
-                    font.pixelSize: 12; font.family: "Rubik"
-                    color: bgPrimary
-                    wrapMode: Text.WordWrap
-                    maximumLineCount: 3
-                    elide: Text.ElideRight
-                    Layout.fillWidth: true
-                    lineHeight: 1.35
-                }
-            }
-
-            Rectangle {
-                visible: notif.urgency === "critical" || (notif.urgency + "").toLowerCase().includes("critical")
-                width: 7; height: 7; radius: 4
-                color: "#ff5f57"
-            }
+            easing.type: Easing.InOutCubic
         }
 
-        Row {
-            visible: (notif.actions?.length ?? 0) > 0
-            spacing: 6
-            Layout.fillWidth: true
-
-            Repeater {
-                model: notif.actions ?? []
-                delegate: Item {
-                    required property var modelData
-                    implicitWidth: actionLabel.implicitWidth + 20
-                    height: 26
-                    Rectangle {
-                        anchors.fill: parent; radius: 7
-                        color: aHover.containsMouse ? Qt.rgba(1,1,1,0.16) : Qt.rgba(1,1,1,0.08)
-                        Behavior on color { ColorAnimation { duration: 100 } }
-                        Text {
-                            id: actionLabel
-                            anchors.centerIn: parent
-                            text: modelData.text
-                            font.pixelSize: 11; font.weight: Font.Medium
-                            font.family: "Rubik"; color: "white"
-                        }
-                    }
-                    HoverHandler { id: aHover }
-                    TapHandler {
-                        onTapped: Notifications.attemptInvokeAction(
-                            rowRoot.notif.notificationId, modelData.identifier)
-                    }
-                }
-            }
-        }
     }
 
-    function formatTime(ms) {
-        if (!ms) return ""
-        const d = new Date(ms), now = new Date()
-        const diffMin = Math.floor((now - d) / 60000)
-        if (diffMin < 1) return "now"
-        if (diffMin < 60) return diffMin + "m ago"
-        const diffH = Math.floor(diffMin / 60)
-        if (diffH < 24) return diffH + "h ago"
-        return d.toLocaleDateString(undefined, { month: "short", day: "numeric" })
-    }
 }

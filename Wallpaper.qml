@@ -63,7 +63,7 @@ Item {
     }
 
     width: 500
-    height: 380
+    height: 420
     Component.onCompleted: {
         loadWallpapers();
     }
@@ -214,268 +214,175 @@ Item {
     }
 
     Rectangle {
-        width: 500
-        height: 380
+        anchors.fill: parent
         radius: 20
-        anchors.centerIn: parent
-        color: bgColor
+        color: bgPrimary
+        anchors.margins: 0
 
-        Rectangle {
+        ColumnLayout {
             anchors.fill: parent
-            radius: 20
-            color: bgPrimary
-            anchors.margins: 2
+            anchors.margins: 12
+            spacing: 0
 
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 12
-                spacing: 0
+            Item {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 60
 
-                Item {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 60
+                Column {
+                    anchors.fill: parent
+                    spacing: 2
 
-                    Column {
-                        anchors.fill: parent
-                        spacing: 2
-
-                        Text {
-                            text: "Wallpapers"
-                            color: bgSecondary
-                            font.pixelSize: 25
-                            font.bold: true
-                        }
-
-                        Text {
-                            text: "Auto generated themes from the wallpaper"
-                            color: bgSecondaryDark
-                            font.pixelSize: 15
-                        }
-
+                    Text {
+                        text: "Wallpapers"
+                        color: bgSecondary
+                        font.pixelSize: 25
                     }
 
-                    Row {
-                        anchors.right: parent.right
-                        spacing: 8
-
-                        // Video/Image Toggle Button
-                        Rectangle {
-                            color: wallpaperWindow.useVideo ? bgSecondaryHover : bgSecondary
-                            width: 100
-                            height: 40
-                            radius: 10
-
-                            Text {
-                                text: wallpaperWindow.useVideo ? "Video" : "Image"
-                                anchors.centerIn: parent
-                                color: bgPrimary
-                                font.pixelSize: 15
-                                font.bold: true
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                hoverEnabled: true
-                                onClicked: {
-                                    wallpaperWindow.useVideo = !wallpaperWindow.useVideo;
-                                    if (wallpaperWindow.useVideo)
-                                        wallpaperWindow.wallpaperDir = "/home/yassine/Pictures/WallpapersVideo";
-                                    else
-                                        wallpaperWindow.wallpaperDir = "/home/yassine/Pictures/Wallpapers";
-                                    wallpaperWindow.currentIndex = 0;
-                                    wallpaperWindow.loadWallpapers();
-                                }
-                            }
-
-                        }
-
-                        // Parallax Effect Button
-                        Rectangle {
-                            color: wallpaperWindow.parallaxEnabled ? bgSecondaryHover : bgSecondary
-                            width: 130
-                            height: 40
-                            radius: wallpaperWindow.parallaxEnabled ? 20 : 10
-
-                            Text {
-                                text: "Parallax effect"
-                                anchors.centerIn: parent
-                                color: bgPrimary
-                                font.pixelSize: 15
-                                font.bold: true
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                hoverEnabled: true
-                                onClicked: {
-                                    wallpaperWindow.parallaxEnabled = !wallpaperWindow.parallaxEnabled;
-                                    if (!wallpaperWindow.parallaxEnabled)
-                                        bg.shift = 0;
-                                    else if (Hyprland.focusedMonitor && Hyprland.focusedMonitor.activeWorkspace)
-                                        bg.shift = (bg.currentWorkspace - 1) * bg.shiftAmount;
-                                }
-                            }
-
-                        }
-
+                    Text {
+                        text: "Auto generated themes from the wallpaper"
+                        color: bgSecondary
+                        font.pixelSize: 15
                     }
 
                 }
 
-                // Wallpaper Display Section
+            }
+
+            // Wallpaper Display Section
+            Rectangle {
+                Layout.fillWidth: true
+                height: 150
+                color: "transparent"
+                radius: 14
+
                 Rectangle {
-                    Layout.fillWidth: true
-                    height: 150
-                    color: "transparent"
+                    anchors.fill: parent
+                    color: bgPrimary
                     radius: 14
+                    clip: true
+                    layer.enabled: true
 
-                    Rectangle {
+                    ListView {
+                        id: listView
+
                         anchors.fill: parent
-                        color: bgPrimary
-                        radius: 14
+                        anchors.margins: 4
+                        orientation: ListView.Horizontal
+                        spacing: 10
+                        model: 0
+                        snapMode: ListView.SnapOneItem
+                        highlightRangeMode: ListView.StrictlyEnforceRange
+                        preferredHighlightBegin: width / 2 - 118
+                        preferredHighlightEnd: width / 2 + 105
+                        interactive: false
+                        highlightFollowsCurrentItem: true
+                        highlightMoveDuration: 350
                         clip: true
-                        layer.enabled: true
 
-                        ListView {
-                            id: listView
-
-                            anchors.fill: parent
-                            anchors.margins: 4
-                            orientation: ListView.Horizontal
-                            spacing: 10
-                            model: 0
-                            snapMode: ListView.SnapOneItem
-                            highlightRangeMode: ListView.StrictlyEnforceRange
-                            preferredHighlightBegin: width / 2 - 105
-                            preferredHighlightEnd: width / 2 + 105
-                            interactive: false
-                            highlightFollowsCurrentItem: true
-                            highlightMoveDuration: 350
-                            clip: true
-
-                            displaced: Transition {
-                                NumberAnimation {
-                                    properties: "x,y"
-                                    duration: 350
-                                    easing.type: Easing.OutCubic
-                                }
-
+                        displaced: Transition {
+                            NumberAnimation {
+                                properties: "x,y"
+                                duration: 350
+                                easing.type: Easing.OutCubic
                             }
 
-                            Behavior on contentX {
-                                SmoothedAnimation {
-                                    duration: 350
-                                    velocity: -1
-                                    easing.type: Easing.OutCubic
-                                }
+                        }
 
+                        Behavior on contentX {
+                            SmoothedAnimation {
+                                duration: 350
+                                velocity: -1
+                                easing.type: Easing.OutCubic
                             }
 
-                            delegate: Rectangle {
-                                property string wallpaperPath: wallpaperWindow.wallpapers[index] || ""
-                                property bool isHovered: mouseArea.containsMouse
-                                property bool isCurrent: index === wallpaperWindow.currentIndex
+                        }
 
-                                width: 240
-                                height: listView.height - 8
-                                anchors.verticalCenter: parent.verticalCenter
-                                color: "transparent"
-                                radius: 12
-                                opacity: isCurrent ? 1 : 0.6
-                                scale: isHovered ? 0.98 : (isCurrent ? 0.95 : 0.8)
-                                layer.enabled: true
+                        delegate: Rectangle {
+                            property string wallpaperPath: wallpaperWindow.wallpapers[index] || ""
+                            property bool isHovered: mouseArea.containsMouse
+                            property bool isCurrent: index === wallpaperWindow.currentIndex
+
+                            width: 240
+                            height: listView.height - 8
+                            anchors.verticalCenter: parent.verticalCenter
+                            color: "transparent"
+                            radius: 12
+                            opacity: isCurrent ? 1 : 0.6
+                            scale: isHovered && isCurrent ? 0.98 : (isCurrent ? 0.95 : 0.8)
+                            layer.enabled: true
+
+                            Rectangle {
+                                id: cover
+
+                                anchors.fill: parent
+                                color: "#2A1B42"
+                                radius: 8
+                                clip: true
+
+                                Image {
+                                    anchors.fill: parent
+                                    source: "file://" + wallpaperPath
+                                    fillMode: Image.PreserveAspectCrop
+                                    asynchronous: true
+                                    cache: false
+                                    smooth: true
+                                    clip: true
+                                    layer.enabled: true
+
+                                    layer.effect: OpacityMask {
+
+                                        maskSource: Rectangle {
+                                            width: cover.width
+                                            height: cover.height
+                                            radius: 8
+                                        }
+
+                                    }
+
+                                }
 
                                 Rectangle {
-                                    id: cover
-
                                     anchors.fill: parent
-                                    color: "#2A1B42"
+                                    color: "transparent"
                                     radius: 8
-                                    clip: true
 
-                                    Image {
-                                        anchors.fill: parent
-                                        source: "file://" + wallpaperPath
-                                        fillMode: Image.PreserveAspectCrop
-                                        asynchronous: true
-                                        cache: false
-                                        smooth: true
-                                        clip: true
-                                        layer.enabled: true
+                                    gradient: Gradient {
+                                        GradientStop {
+                                            position: 0.7
+                                            color: "transparent"
+                                        }
 
-                                        layer.effect: OpacityMask {
-
-                                            maskSource: Rectangle {
-                                                width: cover.width
-                                                height: cover.height
-                                                radius: 8
-                                            }
-
+                                        GradientStop {
+                                            position: 1
+                                            color: "#BB000000"
                                         }
 
                                     }
 
-                                    Rectangle {
+                                }
+
+                                Rectangle {
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    anchors.bottom: parent.bottom
+                                    height: 28
+                                    color: "transparent"
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        anchors.margins: 8
+                                        text: wallpaperPath.split('/').pop()
+                                        color: isCurrent ? "#F0E6FF" : "#C4B3E0"
+                                        font.pixelSize: 12
+                                        font.weight: Font.Medium
+                                        elide: Text.ElideMiddle
+                                        width: parent.width - 16
+                                        horizontalAlignment: Text.AlignHCenter
                                         anchors.fill: parent
-                                        color: "transparent"
-                                        radius: 8
 
-                                        gradient: Gradient {
-                                            GradientStop {
-                                                position: 0.7
-                                                color: "transparent"
-                                            }
-
-                                            GradientStop {
-                                                position: 1
-                                                color: "#BB000000"
-                                            }
-
-                                        }
-
-                                    }
-
-                                    Rectangle {
-                                        anchors.left: parent.left
-                                        anchors.right: parent.right
-                                        anchors.bottom: parent.bottom
-                                        height: 28
-                                        color: "transparent"
-
-                                        Text {
-                                            anchors.centerIn: parent
-                                            anchors.margins: 8
-                                            text: wallpaperPath.split('/').pop()
-                                            color: isCurrent ? "#F0E6FF" : "#C4B3E0"
-                                            font.pixelSize: 12
-                                            font.bold: true
-                                            elide: Text.ElideMiddle
-                                            width: parent.width - 16
-                                            horizontalAlignment: Text.AlignHCenter
-                                            anchors.fill: parent
-
-                                            Behavior on color {
-                                                ColorAnimation {
-                                                    duration: 200
-                                                }
-
-                                            }
-
-                                        }
-
-                                    }
-
-                                    Rectangle {
-                                        anchors.fill: parent
-                                        color: "#FFFFFF"
-                                        opacity: isHovered ? 0.08 : 0
-                                        radius: 8
-
-                                        Behavior on opacity {
-                                            NumberAnimation {
-                                                duration: 150
+                                        Behavior on color {
+                                            ColorAnimation {
+                                                duration: 200
                                             }
 
                                         }
@@ -484,15 +391,33 @@ Item {
 
                                 }
 
-                                MouseArea {
-                                    id: mouseArea
-
+                                Rectangle {
                                     anchors.fill: parent
-                                    hoverEnabled: true
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: {
-                                        Quickshell.execDetached(["notify-send","Wallpaper changed"])
-                                        console.log("hi")
+                                    color: "#FFFFFF"
+                                    opacity: isHovered && isCurrent ? 0.08 : 0
+                                    radius: 8
+
+                                    Behavior on opacity {
+                                        NumberAnimation {
+                                            duration: 150
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+
+                            MouseArea {
+                                id: mouseArea
+
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: isCurrent ? Qt.PointingHandCursor : ""
+                                onClicked: {
+                                    if (isCurrent) {
+                                        Quickshell.execDetached(["notify-send", "Wallpaper changed"]);
+                                        console.log("hi");
                                         wallpaperWindow.currentIndex = index;
                                         wallpaperWindow.setWallpaper(wallpaperPath);
                                         if (!wallpaperWindow.useVideo)
@@ -500,248 +425,330 @@ Item {
 
                                     }
                                 }
+                            }
 
-                                Process {
-                                    id: findProcess
+                            Process {
+                                id: findProcess
 
-                                    command: ["sh", "-c", "find " + wallpaperWindow.wallpaperDir + " -type f \\( -iname '*.jpg' -o -iname '*.png' -o -iname '*.jpeg' -o -iname '*.mp4' -o -iname '*.mkv' -o -iname '*.webm' \\)"]
-                                    running: false
-                                    onStarted: {
-                                        wallpapers = [];
-                                    }
-
-                                    stdout: SplitParser {
-                                        onRead: function(data) {
-                                            if (data.trim().length > 0) {
-                                                wallpapers.push(data.trim());
-                                                listView.model = wallpapers.length;
-                                            }
-                                        }
-                                    }
-
+                                command: ["sh", "-c", "find " + wallpaperWindow.wallpaperDir + " -type f \\( -iname '*.jpg' -o -iname '*.png' -o -iname '*.jpeg' -o -iname '*.mp4' -o -iname '*.mkv' -o -iname '*.webm' \\)"]
+                                running: false
+                                onStarted: {
+                                    wallpapers = [];
                                 }
 
-                                Behavior on opacity {
+                                stdout: SplitParser {
+                                    onRead: function(data) {
+                                        if (data.trim().length > 0) {
+                                            wallpapers.push(data.trim());
+                                            listView.model = wallpapers.length;
+                                        }
+                                    }
+                                }
+
+                            }
+
+                            Behavior on opacity {
+                                NumberAnimation {
+                                    duration: 200
+                                }
+
+                            }
+
+                            Behavior on scale {
+                                NumberAnimation {
+                                    duration: 200
+                                    easing.type: Easing.OutCubic
+                                }
+
+                            }
+
+                            layer.effect: FastBlur {
+                                radius: isCurrent ? 0 : 5
+
+                                Behavior on radius {
                                     NumberAnimation {
+                                        // easing.type: Easing.OutBack
+                                        // easing.overshoot: 0.8
+
                                         duration: 200
                                     }
 
                                 }
 
-                                Behavior on scale {
-                                    NumberAnimation {
-                                        duration: 200
-                                        easing.type: Easing.OutCubic
-                                    }
-
-                                }
-
-                            }
-
-                        }
-
-                        // Left shadow gradient
-                        Rectangle {
-                            anchors.left: parent.left
-                            anchors.top: parent.top
-                            anchors.bottom: parent.bottom
-                            width: 70
-                            z: 5
-                            radius: 14
-
-                            gradient: Gradient {
-                                orientation: Gradient.Horizontal
-
-                                GradientStop {
-                                    position: 0
-                                    color: bgPrimary
-
-                                    Behavior on color {
-                                        ColorAnimation {
-                                            duration: 150
-                                            easing.type: Easing.InOutQuad
-                                        }
-
-                                    }
-
-                                }
-
-                                GradientStop {
-                                    position: 1
-                                    color: "#003D2860"
-
-                                    Behavior on color {
-                                        ColorAnimation {
-                                            duration: 150
-                                            easing.type: Easing.InOutQuad
-                                        }
-
-                                    }
-
-                                }
-
-                            }
-
-                        }
-
-                        // Left Arrow
-                        Rectangle {
-                            anchors.left: parent.left
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.leftMargin: 8
-                            height: parent.height - 16
-                            width: 40
-                            color: leftMouseArea.containsMouse ? bgSecondaryHover : bgSecondary
-                            radius: 10
-                            z: 10
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: "‹"
-                                color: bgPrimary
-                                font.pixelSize: 50
-                                font.weight: Font.Bold
-                            }
-
-                            MouseArea {
-                                id: leftMouseArea
-
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: currentIndex > 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                onClicked: {
-                                    if (currentIndex > 0)
-                                        wallpaperWindow.previousWallpaper();
-
-                                }
-                            }
-
-                            Behavior on color {
-                                ColorAnimation {
-                                    duration: 150
-                                }
-
-                            }
-
-                        }
-
-                        // Right shadow gradient
-                        Rectangle {
-                            anchors.right: parent.right
-                            anchors.top: parent.top
-                            anchors.bottom: parent.bottom
-                            width: 70
-                            z: 5
-                            radius: 14
-
-                            gradient: Gradient {
-                                orientation: Gradient.Horizontal
-
-                                GradientStop {
-                                    position: 0
-                                    color: "#003D2860"
-
-                                    Behavior on color {
-                                        ColorAnimation {
-                                            duration: 150
-                                            easing.type: Easing.InOutQuad
-                                        }
-
-                                    }
-
-                                }
-
-                                GradientStop {
-                                    position: 1
-                                    color: bgPrimary
-
-                                    Behavior on color {
-                                        ColorAnimation {
-                                            duration: 150
-                                            easing.type: Easing.InOutQuad
-                                        }
-
-                                    }
-
-                                }
-
-                            }
-
-                        }
-
-                        // Right Arrow
-                        Rectangle {
-                            anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.rightMargin: 8
-                            height: parent.height - 16
-                            width: 40
-                            color: rightMouseArea.containsMouse ? bgSecondaryHover : bgSecondary
-                            radius: 10
-                            z: 10
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: "›"
-                                color: bgPrimary
-                                font.pixelSize: 50
-                                font.weight: Font.Bold
-                            }
-
-                            MouseArea {
-                                id: rightMouseArea
-
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: currentIndex < wallpapers.length - 1 ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                onClicked: {
-                                    if (currentIndex < wallpapers.length - 1)
-                                        wallpaperWindow.nextWallpaper();
-
-                                }
-                            }
-
-                            Behavior on color {
-                                ColorAnimation {
-                                    duration: 150
-                                }
-
-                            }
-
-                        }
-
-                        Behavior on color {
-                            ColorAnimation {
-                                duration: 150
-                                easing.type: Easing.InOutQuad
                             }
 
                         }
 
                     }
 
-                }
+                    // Left shadow gradient
+                    Rectangle {
+                        anchors.left: parent.left
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        width: 70
+                        z: 5
+                        radius: 14
 
-                // Bottom Section - WallpaperColors
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 150
-                    color: "transparent"
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
 
-                    WallpaperColors {
-                        id: wColors
+                            GradientStop {
+                                position: 0
+                                color: bgPrimary
+
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: 150
+                                        easing.type: Easing.InOutQuad
+                                    }
+
+                                }
+
+                            }
+
+                            GradientStop {
+                                position: 1
+                                color: "#003D2860"
+
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: 150
+                                        easing.type: Easing.InOutQuad
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                    // Left Arrow
+                    Rectangle {
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.leftMargin: 8
+                        height: parent.height - 16
+                        width: 40
+                        color: leftMouseArea.containsMouse ? bgSecondaryHover : bgSecondary
+                        radius: 10
+                        z: 10
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "‹"
+                            color: bgPrimary
+                            font.pixelSize: 50
+                     
+                        }
+
+                        MouseArea {
+                            id: leftMouseArea
+
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: currentIndex > 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
+                            onClicked: {
+                                if (currentIndex > 0)
+                                    wallpaperWindow.previousWallpaper();
+
+                            }
+                        }
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: 150
+                            }
+
+                        }
+
+                    }
+
+                    // Right shadow gradient
+                    Rectangle {
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        width: 70
+                        z: 5
+                        radius: 14
+
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
+
+                            GradientStop {
+                                position: 0
+                                color: "#003D2860"
+
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: 150
+                                        easing.type: Easing.InOutQuad
+                                    }
+
+                                }
+
+                            }
+
+                            GradientStop {
+                                position: 1
+                                color: bgPrimary
+
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: 150
+                                        easing.type: Easing.InOutQuad
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                    // Right Arrow
+                    Rectangle {
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.rightMargin: 8
+                        height: parent.height - 16
+                        width: 40
+                        color: rightMouseArea.containsMouse ? bgSecondaryHover : bgSecondary
+                        radius: 10
+                        z: 10
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "›"
+                            color: bgPrimary
+                            font.pixelSize: 50
+                     
+                        }
+
+                        MouseArea {
+                            id: rightMouseArea
+
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: currentIndex < wallpapers.length - 1 ? Qt.PointingHandCursor : (currentIndex == 0 ? Qt.PointingHandCursor : Qt.ArrowCursor)
+                            onClicked: {
+                                if (currentIndex < wallpapers.length - 1)
+                                    wallpaperWindow.nextWallpaper();
+
+                            }
+                        }
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: 150
+                            }
+
+                        }
+
+                    }
+
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: 150
+                            easing.type: Easing.InOutQuad
+                        }
+
                     }
 
                 }
 
             }
 
-            Behavior on color {
-                ColorAnimation {
-                    duration: 150
-                    easing.type: Easing.InOutQuad
+            Row {
+                anchors.right: parent.right
+                spacing: 8
+
+                // Video/Image Toggle Button
+                Rectangle {
+                    color: wallpaperWindow.useVideo ? bgSecondaryHover : bgSecondary
+                    width: 100
+                    height: 40
+                    radius: 10
+
+                    Text {
+                        text: wallpaperWindow.useVideo ? "Video" : "Image"
+                        anchors.centerIn: parent
+                        color: bgPrimary
+                        font.pixelSize: 15
+                        font.bold: true
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        hoverEnabled: true
+                        onClicked: {
+                            wallpaperWindow.useVideo = !wallpaperWindow.useVideo;
+                            if (wallpaperWindow.useVideo)
+                                wallpaperWindow.wallpaperDir = "/home/yassine/Pictures/WallpapersVideo";
+                            else
+                                wallpaperWindow.wallpaperDir = "/home/yassine/Pictures/Wallpapers";
+                            wallpaperWindow.currentIndex = 0;
+                            wallpaperWindow.loadWallpapers();
+                        }
+                    }
+
                 }
 
+                // Parallax Effect Button
+                Rectangle {
+                    color: wallpaperWindow.parallaxEnabled ? bgSecondaryHover : bgSecondary
+                    width: 130
+                    height: 40
+                    radius: wallpaperWindow.parallaxEnabled ? 20 : 10
+
+                    Text {
+                        text: "Parallax effect"
+                        anchors.centerIn: parent
+                        color: bgPrimary
+                        font.pixelSize: 15
+                        font.bold: true
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        hoverEnabled: true
+                        onClicked: {
+                            wallpaperWindow.parallaxEnabled = !wallpaperWindow.parallaxEnabled;
+                            if (!wallpaperWindow.parallaxEnabled)
+                                bg.shift = 0;
+                            else if (Hyprland.focusedMonitor && Hyprland.focusedMonitor.activeWorkspace)
+                                bg.shift = (bg.currentWorkspace - 1) * bg.shiftAmount;
+                        }
+                    }
+
+                }
+
+            }
+
+            // Bottom Section - WallpaperColors
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 150
+                color: "transparent"
+
+                WallpaperColors {
+                    id: wColors
+                }
+
+            }
+
+        }
+
+        Behavior on color {
+            ColorAnimation {
+                duration: 150
+                easing.type: Easing.InOutQuad
             }
 
         }

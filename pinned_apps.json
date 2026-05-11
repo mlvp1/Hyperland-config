@@ -29,6 +29,11 @@
       "appName": "Free Download Manager",
       "iconName": "freedownloadmanager",
       "command": "/usr/bin/fdm"
+    },
+    {
+      "appName": "Rnote",
+      "iconName": "com.github.flxzt.rnote",
+      "command": "rnote"
     }
   ]
 }

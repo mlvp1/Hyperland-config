@@ -16,8 +16,8 @@ Item {
 
         anchors.left: parent.left
         anchors.top: parent.top
-        anchors.leftMargin: 10
-        anchors.topMargin: 4
+        anchors.leftMargin: 7
+        anchors.topMargin: 6
         width: 25
         height: 25
         opacity: parent.visible ? 1 : 0
@@ -83,7 +83,7 @@ Item {
         }
               Behavior on scale {
             NumberAnimation {
-                duration: 400
+                duration: 0
             easing.type: Easing.InOutCubic
             }
 
@@ -99,8 +99,9 @@ Item {
 
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.rightMargin: 10
-        anchors.topMargin: 4
+        anchors.rightMargin: 6
+        anchors.topMargin: 6
+
         width: 25
         height: 25
         opacity: parent.visible ? 1 : 1
@@ -138,7 +139,7 @@ Item {
 
        Behavior on scale {
             NumberAnimation {
-                duration: 400
+                duration:0
                       easing.type: Easing.InOutCubic
             }
 

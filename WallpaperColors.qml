@@ -31,8 +31,8 @@ Item {
     property color gradient3: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.8), 0.4, baseColor.a)
     property color gradient2: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.75), Math.min(1, baseColor.hslLightness * 1.1), baseColor.a)
     property color gradient1: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.9), 0.75, baseColor.a)
-    property color secondaryDark: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 1.1), Math.min(1, baseColor.hslLightness * 3), baseColor.a)
-    property color secondary: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.95), Math.min(1, baseColor.hslLightness * 3), baseColor.a)
+    property color secondaryDark: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 1.1), Math.min(1, baseColor.hslLightness * 2), baseColor.a)
+    property color secondary: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.95), Math.min(1, baseColor.hslLightness * 2.5), baseColor.a)
     property color secondaryHover: Qt.hsla(baseColor.hslHue, Math.min(1, baseColor.hslSaturation * 0.9), 0.9, baseColor.a)
 
     function colorToHex(color) {
@@ -102,7 +102,7 @@ Item {
                 ColumnLayout {
                     anchors.fill: parent
                     anchors.margins: 0
-                    spacing: 0
+                    spacing: 8
 
                     Text {
                         text: "Choose a color"
@@ -145,8 +145,8 @@ Item {
             }
 
             Rectangle {
-                height: 60
-                width: 450
+                height: 70
+                width: 470
                 color: "transparent"
 
                 Timer {
@@ -158,95 +158,105 @@ Item {
                     onTriggered: root.writeColorsJson()
                 }
 
-                GridLayout {
-                    columns: 3
-                    rowSpacing: 5
-                    columnSpacing: 5
-                    anchors.right: parent.right
-                    anchors.bottom: parent.bottom
-                    anchors.rightMargin: 5
-
-                    Repeater {
-                        model: root.backends
-
-                        Rectangle {
-                            Layout.preferredWidth: 80
-                            Layout.preferredHeight: 30
-                            radius: activeBackend === modelData ? 50 : 10
-                            color: activeBackend === modelData ? secondaryHover : secondary
-
-                            Text {
-                                text: modelData
-                                color: primary
-                                anchors.centerIn: parent
-                                font.pixelSize: 13
-                                font.bold: true
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    root.activeBackend = modelData;
-                                    root.loadColors();
-                                }
-                            }
-
-                            Behavior on Layout.preferredWidth {
-                                NumberAnimation {
-                                    duration: 50
-                                    easing.type: Easing.OutBack
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
                 Rectangle {
-                    width: 30
-                    height: 30
-                    radius: 50
-                    color: root.mode === 0.09 ? secondaryHover : secondary
-                    anchors.left: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            root.mode = (root.mode === 0.8) ? 0.09 : 0.8;
-                            // root.darkWriteColorsJson()
-                            colorWriteDelay.start();
-                        }
-                    }
-
-                    Text {
-                        text: root.mode === 0.09 ? "Dark" : "Light"
-                        color: primary
-                        anchors.centerIn: parent
-                        font.pixelSize: 10
-                        font.bold: true
-                    }
-
-                    Behavior on Layout.preferredWidth {
-                        NumberAnimation {
-                            duration: 50
-                            easing.type: Easing.OutBack
-                        }
-
-                    }
-
-                }
-
-                Rectangle {
-                    width: 160
                     height: 70
+                    width: 320
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.rightMargin: 0
+                    color: "transparent"
+
+                    GridLayout {
+                        columns: 3
+                        rowSpacing: 5
+                        columnSpacing: 5
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Repeater {
+                            model: root.backends
+
+                            Rectangle {
+                                Layout.preferredWidth: 80
+                                Layout.preferredHeight: 30
+                                radius: activeBackend === modelData ? 50 : 10
+                                color: activeBackend === modelData ? secondaryHover : secondary
+
+                                Text {
+                                    text: modelData
+                                    color: primary
+                                    anchors.centerIn: parent
+                                    font.pixelSize: 13
+                                    font.bold: true
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        root.activeBackend = modelData;
+                                        root.loadColors();
+                                    }
+                                }
+
+                                Behavior on Layout.preferredWidth {
+                                    NumberAnimation {
+                                        duration: 50
+                                        easing.type: Easing.OutBack
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                    Rectangle {
+                        width: 65
+                        height: 40
+                        radius: 50
+                        color: root.mode === 0.09 ? secondaryHover : secondary
+                        anchors.left: parent.left
+                        anchors.leftMargin: 0
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                root.mode = (root.mode === 0.8) ? 0.09 : 0.8;
+                                // root.darkWriteColorsJson()
+                                colorWriteDelay.start();
+                            }
+                        }
+
+                        Text {
+                            text: root.mode === 0.09 ? "Dark" : "Light"
+                            color: primary
+                            anchors.centerIn: parent
+                            font.pixelSize: 15
+                            font.bold: true
+                        }
+
+                        Behavior on Layout.preferredWidth {
+                            NumberAnimation {
+                                duration: 50
+                                easing.type: Easing.OutBack
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                Rectangle {
+                    width: 110
+                    height: 50
                     color: Qt.hsla(primaryDark.hslHue, Math.min(1, primaryDark.hslSaturation * 1), 0.5, primaryDark.a)
-                    anchors.bottom: parent.bottom
+                    anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
                     radius: 8
 
@@ -266,20 +276,6 @@ Item {
                         Rectangle {
                             Layout.preferredWidth: 25
                             Layout.preferredHeight: 25
-                            color: primaryDark
-                            radius: 5
-                        }
-
-                        Rectangle {
-                            Layout.preferredWidth: 25
-                            Layout.preferredHeight: 25
-                            color: primary
-                            radius: 5
-                        }
-
-                        Rectangle {
-                            Layout.preferredWidth: 25
-                            Layout.preferredHeight: 25
                             color: secondary
                             radius: 5
                         }
@@ -287,35 +283,7 @@ Item {
                         Rectangle {
                             Layout.preferredWidth: 25
                             Layout.preferredHeight: 25
-                            color: secondaryDark
-                            radius: 5
-                        }
-
-                        Rectangle {
-                            Layout.preferredWidth: 25
-                            Layout.preferredHeight: 25
-                            color: gradient1
-                            radius: 5
-                        }
-
-                        Rectangle {
-                            Layout.preferredWidth: 25
-                            Layout.preferredHeight: 25
-                            color: gradient2
-                            radius: 5
-                        }
-
-                        Rectangle {
-                            Layout.preferredWidth: 25
-                            Layout.preferredHeight: 25
-                            color: gradient3
-                            radius: 5
-                        }
-
-                        Rectangle {
-                            Layout.preferredWidth: 25
-                            Layout.preferredHeight: 25
-                            color: secondaryHover
+                            color: primary
                             radius: 5
                         }
 

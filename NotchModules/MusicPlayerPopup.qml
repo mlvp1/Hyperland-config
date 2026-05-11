@@ -16,7 +16,7 @@ PopupWindow {
     property string bgSecondaryDark: colors.bgSecondaryDark
     property bool opened: false
     property int expandedWidth: 600
-    property int expandedHeight: 200
+    property int expandedHeight: 220
     property Item notchItem
     property bool contentVisible: false
 
@@ -139,8 +139,16 @@ PopupWindow {
             ctx.lineTo(0, 0);
             ctx.closePath();
             ctx.fill();
+            
         }
-
+   layer.effect: DropShadow {
+            horizontalOffset: 0
+            verticalOffset: 4
+            radius: 100
+            samples: 33
+            color: "red" //"#80000000"
+            transparentBorder: true
+        }
         opacity: 1
         width: opened ? expandedWidth : (notchItem ? notchItem.width : 0)
         height: opened ? expandedHeight : 0
@@ -194,13 +202,13 @@ PopupWindow {
                 color: "transparent"
                 anchors.left: parent.left
                 anchors.top: parent.top
-                anchors.topMargin: 15
+                anchors.topMargin: 30
                 anchors.leftMargin: 5
 
                 Text {
                     anchors.centerIn: parent
                      text: ""
-                    color: "white"
+                    color: bgSecondary
                     font.pixelSize: 40
                 }
 
@@ -227,12 +235,12 @@ PopupWindow {
                 anchors.right: parent.right
                 anchors.top: parent.top
                 anchors.rightMargin: 5
-                anchors.topMargin: 15
+                anchors.topMargin: 30
 
                 Text {
                     anchors.centerIn: parent
                     text: ""
-                    color: "white"
+                    color: bgSecondary
                     font.pixelSize: 40
                 }
 
@@ -268,11 +276,14 @@ PopupWindow {
                     anchors.top: parent.top
                     anchors.leftMargin: 20
                     radius: 14
-                    color: "#333333"
+                    color:MprisService.isPlaying ?  "#333333" : "#02020D"
                     scale:MprisService.isPlaying ? 1:0.999
                     opacity:MprisService.isPlaying ? 1:0.8
                           Behavior on scale {
                                 NumberAnimation { duration: 450; easing.type: Easing.OutCubic }
+                            }
+                             Behavior on color {
+                                ColorAnimation { duration: 600; easing.type: Easing.OutCubic }
                             }
                             Behavior on opacity {
                                 NumberAnimation { duration: 450; easing.type: Easing.OutCubic }
@@ -392,9 +403,7 @@ SequentialAnimation {
 
                 }
 
-                // Song info
-  // Song info
-// Song info - replace the entire Column + SequentialAnimation block with this:
+
 
 Item {
     id: songInfoItem
@@ -415,7 +424,7 @@ Item {
             text: MprisService.activeTrack.title
             font.pixelSize: 24
             font.weight: Font.Bold
-            color: "white"
+            color: bgSecondary
             width: parent.width
             elide: Text.ElideRight
         }
@@ -423,8 +432,9 @@ Item {
         Text {
             id: artistText
             text: MprisService.activeTrack.artist
-            color: "#cccccc"
+            color: bgSecondary
             font.pixelSize: 16
+            opacity:0.8
             width: parent.width
             elide: Text.ElideRight
         }
@@ -528,7 +538,7 @@ SequentialAnimation {
                             text: musicPlayerPopup.formatTime(popupContent.position)
                             font.pixelSize: 11
                             font.weight: Font.Bold
-                            color: "#999"
+                            color: bgSecondary
                             width: 38
                             horizontalAlignment: Text.AlignRight
                             anchors.verticalCenter: parent.verticalCenter
@@ -539,14 +549,15 @@ SequentialAnimation {
                             width: parent.width - 96
                             height: 6
                             radius: 3
-                            color: "#333333"
+                            color: bgPrimaryDark
                             anchors.verticalCenter: parent.verticalCenter
 
                             Rectangle {
                                 width: parent.width * popupContent.progress
                                 height: parent.height
                                 radius: parent.radius
-                                color: "white"
+                                color: bgSecondary
+                               
 
                                 Behavior on width {
                                     NumberAnimation { duration: 200; easing.type: Easing.Linear }
@@ -571,7 +582,7 @@ SequentialAnimation {
                             text: musicPlayerPopup.formatTime(popupContent.length)
                             font.pixelSize: 11
                             font.weight: Font.Bold
-                            color: "#999"
+                            color: bgSecondary
                             width: 38
                             anchors.verticalCenter: parent.verticalCenter
                         }
@@ -608,7 +619,7 @@ Timer {
                             Text {
                                 anchors.centerIn: parent
                                 text: ""
-                                color: "white"
+                                color: bgSecondary
                                 font.pixelSize: 35
                                 
                             }
@@ -639,7 +650,7 @@ Timer {
                             Text {
                                 anchors.centerIn: parent
                                 text: MprisService.isPlaying ? "" : ""
-                                color: "white"
+                                color: bgSecondary
                                 font.pixelSize: 50
                             }
 
@@ -665,7 +676,7 @@ Timer {
                             Text {
                                 anchors.centerIn: parent
                                 text: ""
-                                color: "white"
+                                color: bgSecondary
                                 font.pixelSize: 35
                             }
 

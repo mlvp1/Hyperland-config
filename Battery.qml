@@ -2,6 +2,7 @@ import Qt5Compat.GraphicalEffects
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Shapes
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
@@ -18,6 +19,7 @@ Item {
     property string bgPrimaryDark: colors.bgPrimaryDark
     property string bgSecondaryDark: colors.bgSecondaryDark
     property string battery: ""
+    property string battreyTimeR: "gg"
     property string c: bgSecondary
     property bool hasBattery: false
     property bool isCharging: false
@@ -55,10 +57,14 @@ Item {
         id: topBar
 
         anchors.fill: parent
-        color: bgPrimary
+        color: topBarA.containsMouse ? bgSecondaryHover : bgPrimary
         radius: 14
 
         MouseArea {
+            id: topBarA
+
+            cursorShape: Qt.PointingHandCursor
+            hoverEnabled: true
             anchors.fill: parent
             onClicked: {
                 popup.opened = !popup.opened;
@@ -66,7 +72,7 @@ Item {
         }
 
         Item {
-            width: 45
+            width: 50
             height: 25
             anchors.centerIn: parent
 
@@ -74,8 +80,16 @@ Item {
                 width: 30
                 height: 16
                 radius: 5
-                color: bgPrimaryDark
+                color: topBarA.containsMouse ? bgSecondaryHover : bgPrimaryDark
                 anchors.centerIn: parent
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: 150
+                    }
+
+                }
+
             }
 
             Rectangle {
@@ -85,19 +99,29 @@ Item {
                 height: 16
                 radius: 5
                 color: "transparent"
-                border.color: c
-                border.width: 1.5
+                border.color: topBarA.containsMouse ? bgPrimary : "white"
+                border.width: 1.4
                 anchors.centerIn: parent
 
                 Rectangle {
                     anchors.left: parent.left
-                    anchors.leftMargin: 2
-                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.leftMargin: 3
+                    anchors.top: parent.top
+                    anchors.topMargin: 3
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 3
                     width: Math.max(0, (batteryBody.width - 6) * (root.batteryLevel / 100))
                     height: batteryBody.height - 4
                     radius: 2
-                    color: c
+                    color: topBarA.containsMouse ? bgPrimary : c
                     opacity: 0.9
+
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: 150
+                        }
+
+                    }
 
                     Behavior on width {
                         NumberAnimation {
@@ -116,12 +140,32 @@ Item {
                 }
 
                 Text {
-                    text: root.isCharging ? "" : root.battery
-                    font.pointSize: 10
+                    text: root.isCharging ? "" : ""
+                    style: Text.Outline
+                    styleColor: topBarA.containsMouse ? bgPrimary : "white"
+                    font.pointSize: 15
                     font.bold: true
-                    color: root.isCharging ? "white" : "transparent"
-                    anchors.centerIn: parent
+                    scale: topBarA.containsMouse ? 1.2 : 1
+                    color: topBarA.containsMouse ? bgSecondaryHover : bgPrimary
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top: parent.top
+                    anchors.topMargin: -5
                     z: 10
+
+                    Behavior on color {
+                        ColorAnimation {
+                            duration: 150
+                        }
+
+                    }
+
+                }
+
+                Behavior on border.color {
+                    ColorAnimation {
+                        duration: 150
+                    }
+
                 }
 
             }
@@ -130,14 +174,14 @@ Item {
                 width: 2
                 height: 8
                 radius: 1
-                color: c
+                color: topBarA.containsMouse ? bgPrimary : "white"
                 anchors.left: batteryBody.right
                 anchors.leftMargin: 1
                 anchors.verticalCenter: batteryBody.verticalCenter
 
                 Behavior on color {
                     ColorAnimation {
-                        duration: 300
+                        duration: 150
                     }
 
                 }
@@ -146,130 +190,229 @@ Item {
 
         }
 
+        Behavior on color {
+            ColorAnimation {
+                duration: 150
+            }
+
+        }
+
     }
 
-    PopupWindow {
+    PanelWindow {
         id: popup
 
         property bool opened: false
 
-        width: 200
-        height: hasGpu ? 125 : 70
+        WlrLayershell.namespace: "layer_blur"
+        width: 260
+        height: 190
         visible: false
         color: "transparent"
 
-        anchor {
-            item: root
-            edges: Edges.Bottom
-            rect.y: root.height + 15
+        anchors {
+            top: true
+            right: true
         }
 
         Rectangle {
             id: popupContent
 
-            anchors.fill: parent
-            color: bgColor
+            border.width: 1
+            border.color: bgPrimary
+            layer.enabled: true
+            anchors.centerIn: parent
+            anchors.margins: 0
+            width: 240
+            height: 170
+            color: Qt.rgba(Qt.color(bgColor).r, Qt.color(bgColor).g, Qt.color(bgColor).b, 0.58)
             radius: 20
             transformOrigin: Item.Top
             opacity: popup.opened ? 1 : 0
             scale: popup.opened ? 1 : 0.92
 
-            Row {
+            Column {
                 // GPU Mode Buttons (only visible if GPU is available)
 
                 anchors.fill: parent
                 anchors.margins: 15
-                spacing: 12
+                spacing: 15
 
                 Rectangle {
-                    width: 50
-                    height: 50
+                    width: 215
+                    radius: 20
+                    height: 60
+                    anchors.horizontalCenter: anchors.horizontalCenter
                     color: bgPrimary
-                    radius: 50
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
+
+                    Rectangle {
+                        width: 45
+                        height: 45
+                        radius: 50
+                        anchors.left: parent.left
+                        anchors.leftMargin: 8
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: bgPrimaryDark
+
+                        Shape {
+                            width: 50
+                            height: 50
+                            anchors.centerIn: parent
+                            layer.enabled: true
+                            layer.samples: 8
+
+                            ShapePath {
+                                strokeWidth: 7
+                                strokeColor: "#009E60"
+                                fillColor: "transparent"
+                                capStyle: ShapePath.RoundCap
+
+                                PathAngleArc {
+                                    centerX: 25
+                                    centerY: 25
+                                    radiusX: (50 - 7) / 2
+                                    radiusY: (50 - 7) / 2
+                                    startAngle: -90
+                                    sweepAngle: root.battery * 3.6
+
+                                    Behavior on sweepAngle {
+                                        NumberAnimation {
+                                            duration: 600
+                                            easing.type: Easing.InOutQuad
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: 36
+                            height: 36
+                            color: bgSecondary
+                            radius: 50
+
+                            Text {
+                                text: root.battery + "%"
+                                font.pointSize: 12
+                                font.bold: true
+                                color: root.isCharging ? bgPrimary : bgPrimary
+                                anchors.centerIn: parent
+                                z: 10
+                            }
+
+                        }
+
+                    }
 
                     Text {
-                        text: root.isCharging ? "" : root.battery + "%"
-                        font.pointSize: 15
+                        text: battreyTimeR + (root.isCharging ? " Untill charged" : " Remaning")
+                        font.pixelSize: 14
+                        anchors.right: parent.right
+                        anchors.rightMargin: 8
                         font.bold: true
-                        color: root.isCharging ? "white" : bgSecondary
-                        anchors.centerIn: parent
-                        z: 10
+                        color: bgSecondary
+                        anchors.verticalCenter: parent.verticalCenter
                     }
 
                 }
 
                 Rectangle {
-                    id: toggleTrack1
-
-                    property bool isOn: false
-
-                    anchors.right: parent.right
-                    implicitWidth: 100
-                    implicitHeight: 40
+                    width: 215
+                    radius: 20
+                    height: 60
+                    anchors.horizontalCenter: anchors.horizontalCenter
                     color: bgPrimary
-                    radius: 50
-                    border.color: bgSecondary
-                    border.width: 0
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            toggleTrack1.isOn = !toggleTrack1.isOn;
-                            if (toggleTrack1.isOn || root.currentRefreshRate === "60")
-                                var rate = ref.text;
-
-                            setRefreshRate.command = ["hyprctl", "keyword", "monitor", root.monitorName + "," + root.monitorResolution + "@" + rate];
-                            setRefreshRate.running = true;
-                            console.log("Setting refresh rate to: " + rate + "Hz");
-                        }
-                    }
 
                     Rectangle {
-                        id: toggleThumb1
+                        id: toggleTrack1
 
-                        anchors.fill: parent
-                        anchors.margins: 5
-                        anchors.leftMargin: toggleTrack1.isOn ? 5 : 40
-                        anchors.rightMargin: toggleTrack1.isOn ? 40 : 5
-                        color: bgSecondary
+                        property bool isOn: false
+
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.right: parent.right
+                        anchors.rightMargin: 10
+                        implicitWidth: 80
+                        implicitHeight: 40
+                        color: bgPrimaryDark
                         radius: 50
+                        border.color: bgSecondary
+                        border.width: 0
 
-                        Text {
-                            id: ref
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                toggleTrack1.isOn = !toggleTrack1.isOn;
+                                if (toggleTrack1.isOn || root.currentRefreshRate === "60")
+                                    var rate = ref.text;
 
-                            text: toggleTrack1.isOn ? "60" : "144"
-                            anchors.centerIn: parent
-                            font.pixelSize: 18
-                            color: bgPrimary
+                                setRefreshRate.command = ["hyprctl", "keyword", "monitor", root.monitorName + "," + root.monitorResolution + "@" + rate];
+                                setRefreshRate.running = true;
+                                console.log("Setting refresh rate to: " + rate + "Hz");
+                            }
                         }
 
-                        Behavior on anchors.leftMargin {
-                            NumberAnimation {
-                                duration: toggleTrack1.isOn ? 300 : 100
-                                easing.type: Easing.InOutQuad
+                        Rectangle {
+                            id: toggleThumb1
+
+                            anchors.fill: parent
+                            anchors.margins: 5
+                            anchors.leftMargin: toggleTrack1.isOn ? 5 : 30
+                            anchors.rightMargin: toggleTrack1.isOn ? 30 : 5
+                            color: bgSecondary
+                            radius: 50
+
+                            Text {
+                                id: ref
+
+                                font.bold: true
+                                text: toggleTrack1.isOn ? "60" : "144"
+                                anchors.centerIn: parent
+                                font.pixelSize: 16
+                                color: bgPrimary
+                            }
+
+                            Behavior on anchors.leftMargin {
+                                NumberAnimation {
+                                    duration: toggleTrack1.isOn ? 200 : 100
+                                    easing.type: Easing.InOutQuad
+                                }
+
+                            }
+
+                            Behavior on anchors.rightMargin {
+                                NumberAnimation {
+                                    duration: toggleTrack1.isOn ? 100 : 200
+                                    easing.type: Easing.InOutQuad
+                                }
+
+                            }
+
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: 400
+                                    easing.type: Easing.InOutQuad
+                                }
+
                             }
 
                         }
 
-                        Behavior on anchors.rightMargin {
-                            NumberAnimation {
-                                duration: toggleTrack1.isOn ? 100 : 300
-                                easing.type: Easing.InOutQuad
-                            }
+                    }
 
-                        }
-
-                        Behavior on color {
-                            ColorAnimation {
-                                duration: 400
-                                easing.type: Easing.InOutQuad
-                            }
-
-                        }
-
+                    Text {
+                        text: "Refreshrate"
+                        font.pixelSize: 14
+                        anchors.left: parent.left
+                        anchors.leftMargin: 10
+                        font.bold: true
+                        color: bgSecondary
+                        anchors.verticalCenter: parent.verticalCenter
                     }
 
                 }
@@ -662,6 +805,22 @@ Item {
 
     }
 
+    //time
+    Process {
+        id: battreyTime
+
+        command: ["sh", "-c", "acpi -b | awk -F', ' '{split($3,t,\":\"); printf \"%dh %dm \", t[1]+0, t[2]+0}'"]
+        running: root.hasBattery
+
+        stdout: SplitParser {
+            onRead: function(data) {
+                const time = data.trim();
+                root.battreyTimeR = time;
+            }
+        }
+
+    }
+
     // Low battery notification
     Process {
         id: notificationProc
@@ -678,6 +837,7 @@ Item {
         onTriggered: {
             batteryProc.running = true;
             chargingProc.running = true;
+            battreyTime.running = true;
         }
     }
 

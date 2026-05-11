@@ -4,6 +4,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
 import "Widgets"
 import "services"
 
@@ -21,19 +22,17 @@ Item {
     property string bgGradient3: colors.bgGradient3
     property bool popupOpened: popup.opened
 
-    width: 120
+    width: 100
     height: 30
 
-  IpcHandler {
-    target: "main"
+    IpcHandler {
+        function togglePanel() {
+            popup.opened = !popup.opened;
+            wallpaper.isopenn = popup.opened;
+        }
 
-    function togglePanel() {
-        popup.opened = !popup.opened
-        wallpaper.isopenn = popup.opened
+        target: "main"
     }
-
-
-}
 
     ColorLoader {
         id: colors
@@ -53,11 +52,11 @@ Item {
         radius: 30
 
         Text {
-            text: Qt.formatDateTime(clock.date, "hh:mm AP") + " . " + Qt.formatDate(new Date(), "ddd MM/dd")
+            text: Qt.formatDateTime(clock.date, "hh:mm AP") + "   " + Qt.formatDate(new Date(), "MM/dd")
             font.pointSize: 8
-            font.bold: true
             color: hoverArea.containsMouse ? bgPrimary : bgSecondary
             anchors.centerIn: parent
+            font.bold: true
 
             Behavior on color {
                 ColorAnimation {
@@ -89,148 +88,127 @@ Item {
 
     }
 
-    PopupWindow {
+    PanelWindow {
+        // Gradient border container with bevel effect
+
         id: popup
 
         property bool opened: false
 
+        WlrLayershell.layer: WlrLayershell.Overlay
+        WlrLayershell.namespace: "layer_blur"
         width: 540
         height: 1030
         visible: false
         color: "transparent"
 
-        anchor {
-            item: topBar
-            edges: Edges.Bottom
-            rect.y: root.y + root.height + 3
-            rect.x: -10
+        anchors {
+            left: true
+            top: true
         }
 
-        // Gradient border container with bevel effect
         Rectangle {
-            id: borderContainer
+            id: popupContent
 
-            anchors.fill: parent
-            anchors.margins: 10
-            radius: 30
+            border.width: 1
+            border.color: bgPrimary
             transformOrigin: Item.TopLeft
             opacity: popup.opened ? 1 : 1
             scale: popup.opened ? 1 : 1
+            width: 520
+            height: 1010
+            anchors.left: parent.left
+            anchors.leftMargin: 15
+            anchors.top: parent.top
+            anchors.topMargin: 15
+            color: Qt.rgba(Qt.color(bgColor).r, Qt.color(bgColor).g, Qt.color(bgColor).b, 1)
+            radius: 28
+            layer.enabled: true
 
-            Rectangle {
-                id: popupContent
-
+            GridLayout {
                 anchors.fill: parent
-                anchors.margins: -1
-                color: bgColor
-                radius: 28
+                anchors.margins: 10
+                columns: 2
+                rowSpacing: 10
+                columnSpacing: 10
                 layer.enabled: true
 
-                GridLayout {
-                    anchors.fill: parent
-                    anchors.margins: 10
-                    columns: 2
-                    rowSpacing: 10
-                    columnSpacing: 10
-                    layer.enabled: true
+                Rectangle {
+                    color: "transparent"
+                    height: 320
+                    width: 320
+                    radius: 20
+                    Layout.rowSpan: 3
 
-                    Rectangle {
-                        color: "transparent"
-                        height: 320
-                        width: 320
-                        radius: 20
-                        Layout.rowSpan: 3
-
-                        Calander {
-                            anchors.centerIn: parent
-                        }
-
-                    }
-
-                    Rectangle {
-                        color: "transparent"
-                        height: 330
-                        width: 160
-                        radius: 20
-                        Layout.rowSpan: 3
-
-                        Time {
-                        }
-
-                    }
-
-                    Rectangle {
-                        color: "transparent"
-                        radius: 20
-                        height: 250
-                        Layout.fillWidth: true
-                        Layout.columnSpan: 2
-                        Layout.rowSpan: 3
-
-                        SS {
-                        }
-
-                    }
-
-                    Rectangle {
-                        color: "transparent"
-                        radius: 20
-                        height: 380
-                        Layout.fillWidth: true
-                        Layout.columnSpan: 2
-                        Layout.rowSpan: 3
-
-                        Wallpaper {
-                            id: wallpaper
-                        }
-
-                    }
-
-                    layer.effect: FastBlur {
-                        radius: popup.opened ? 0 : 45
-
-                        Behavior on radius {
-                            NumberAnimation {
-                                // easing.type: Easing.OutBack
-                                // easing.overshoot: 0.8
-
-                                duration: 180
-                            }
-
-                        }
-
+                    Calander {
+                        anchors.centerIn: parent
                     }
 
                 }
 
-                Behavior on color {
-                    ColorAnimation {
-                        duration: 150
-                        easing.type: Easing.InOutQuad
+                Rectangle {
+                    color: "transparent"
+                    height: 330
+                    width: 160
+                    radius: 20
+                    Layout.rowSpan: 3
+
+                    Time {
+                    }
+
+                }
+
+                Rectangle {
+                    color: "transparent"
+                    radius: 20
+                    height: 210
+                    Layout.fillWidth: true
+                    Layout.columnSpan: 2
+                    Layout.rowSpan: 3
+
+                    SS {
+                    }
+
+                }
+
+                Rectangle {
+                    color: "transparent"
+                    radius: 20
+                    height: 420
+                    Layout.fillWidth: true
+                    Layout.columnSpan: 2
+                    Layout.rowSpan: 3
+
+                    Wallpaper {
+                        id: wallpaper
+                    }
+
+                }
+
+                layer.effect: FastBlur {
+                    radius: popup.opened ? 0 : 5
+
+                    Behavior on radius {
+                        NumberAnimation {
+                            // easing.type: Easing.OutBack
+                            // easing.overshoot: 0.8
+
+                            duration: 180
+                        }
+
                     }
 
                 }
 
             }
 
-            gradient: Gradient {
-                orientation: Gradient.Vertical
-
-                GradientStop {
-                    position: 0
-                    color: bgGradient1
-                }
-
-                GradientStop {
-                    position: 0.7
-                    color: bgGradient2
-                }
-
-                GradientStop {
-                    position: 1
-                    color: bgGradient3
-                }
-
+            layer.effect: DropShadow {
+                horizontalOffset: 4
+                verticalOffset: 4
+                radius: 10
+                samples: 33
+                color: "#80000000"
+                transparentBorder: true
             }
 
             Behavior on opacity {
@@ -262,6 +240,14 @@ Item {
                         easing.overshoot: 0.8
                     }
 
+                }
+
+            }
+
+            Behavior on color {
+                ColorAnimation {
+                    duration: 150
+                    easing.type: Easing.InOutQuad
                 }
 
             }

@@ -21,23 +21,13 @@ Scope {
     ColorLoader {
         id: colors
     }
-   
+
     IpcHandler {
-        function toggleTopBarPopup() {
-            popup.opened = !popup.opened;
-            wallpaper.isopenn = popup.opened;
+        function toggleTopBar() {
+            topbar.visible = !topbar.visible;
         }
 
-        function openTopBarPopup() {
-            popup.opened = true;
-            wallpaper.isopenn = true;
-        }
-
-        function closeTopBarPopup() {
-            popup.opened = false;
-            wallpaper.isopenn = false;
-        }
-
+        target: "topbarr"
     }
 
     // Notification overlay window
@@ -67,10 +57,12 @@ Scope {
 
     // Main bar window
     PanelWindow {
-        WlrLayershell.layer: WlrLayer.Bottom
-        WlrLayershell.namespace: "depth-wallpaper-below"
+        id: topbar
+
+        WlrLayershell.namespace: "layer_blur"
         implicitHeight: 44 // it was 44
         color: "transparent"
+        visible: true
 
         anchors {
             top: true
@@ -87,10 +79,11 @@ Scope {
         Rectangle {
             anchors.fill: parent
             radius: 20
-            color: "transparent"
+            color: Qt.rgba(Qt.color(bgColor).r, Qt.color(bgColor).g, Qt.color(bgColor).b, 1)
+            opacity: 1
             anchors.verticalCenter: parent.verticalCenter
-            anchors.leftMargin: 4
-            anchors.rightMargin: 4
+            anchors.leftMargin: 10
+            anchors.rightMargin: 10
             anchors.topMargin: 4 // it was 4
             anchors.bottomMargin: 0
 
@@ -101,19 +94,31 @@ Scope {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.leftMargin: -4
 
+             
                 Row {
                     spacing: 8
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.leftMargin: 10
+   Test {
+                }
 
-                    Test {
-                    }
+                    Rectangle {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 61
+                        color: bgPrimary
+                        height: 30
+                        radius: 35
 
-                    ColorPicker {
-                    }
+                        ColorPicker {
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
 
-                    ScreenShot {
+                        ScreenShot {
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.right: parent.right
+                        }
+
                     }
 
                 }
@@ -144,13 +149,14 @@ Scope {
 
             }
 
-        }
+            Item {
+                anchors.fill: parent
 
-        Item {
-            anchors.fill: parent
+                Notch {
+                    anchors.top:parent.top
+                    anchors.topMargin:0
+                }
 
-            Notch {
-                anchors.horizontalCenter: parent.horizontalCenter
             }
 
         }
